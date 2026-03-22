@@ -1,0 +1,42 @@
+/* Responsive overrides for Navbar */
+
+/* Desktop: show category links, hide hamburger */
+@media (min-width: 768px) {
+  .navbar-hamburger {
+    display: none !important;
+  }
+  .navbar-desktop-links {
+    display: flex !important;
+  }
+  .navbar-mobile-menu {
+    display: none !important;
+  }
+}
+
+/* Mobile: hide desktop links, show hamburger */
+@media (max-width: 767px) {
+  .navbar-desktop-links {
+    display: none !important;
+  }
+  .navbar-hamburger {
+    display: block !important;
+    /* Touch-friendly: minimum 44×44px tap target */
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .navbar-logo-text {
+    display: none;
+  }
+  .navbar-search-form {
+    max-width: 140px;
+  }
+}
+
+/* Mobile nav links — touch-friendly tap targets */
+@media (max-width: 767px) {
+  .navbar-mobile-menu a {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}

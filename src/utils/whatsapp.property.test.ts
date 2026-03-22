@@ -1,0 +1,87 @@
+// Feature: medtech-solutions-website, Property 5: Single-product WhatsApp URL contains product name and effective price
+// Feature: medtech-solutions-website, Property 6: Cart checkout WhatsApp message contains all items
+
+import { describe, it } from 'vitest';
+import * as fc from 'fast-check';
+import { buildSingleProductUrl, buildCartCheckoutUrl } from './whatsapp';
+import type { CartItem, Product } from '../types';
+
+/**
+ * Validates: Requirements 4.1, 4.3
+ */
+
+const categoryArb = fc.constantFrom(
+  'Phones' as const,
+  'Laptops' as const,
+  'Desktops' as const,
+  'Accessories' as const,
+);
+
+const productArb: fc.Arbitrary<Product> = fc.record({
+  id: fc.uuid(),
+  name: fc.string({ minLength: 1, maxLength: 80 }),
+  category: categoryArb,
+  description: fc.string({ minLength: 1, maxLength: 200 }),
+  original_price: fc.float({ min: 1, max: 100_000, noNaN: true }),
+  discounted_price: fc.option(fc.float({ min: 1, max: 100_000, noNaN: true }), { nil: null }),
+  stock_quantity: fc.nat({ max: 1000 }),
+  media: fc.constant([]),
+  created_at: fc.constant('2024-01-01T00:00:00Z'),
+  updated_at: fc.constant('2024-01-01T00:00:00Z'),
+});
+
+const cartItemArb: fc.Arbitrary<CartItem> = fc.record({
+  product_id: fc.uuid(),
+  name: fc.string({ minLength: 1, maxLength: 80 }),
+  effective_price: fc.float({ min: 1, max: 100_000, noNaN: true }),
+  quantity: fc.integer({ min: 1, max: 100 }),
+  thumbnail_url: fc.constant(''),
+});
+
+describe('buildSingleProductUrl — Property 5: Single-product WhatsApp URL contains product name and effective price', () => {
+  it('URL targets wa.me/254793636022, decoded message contains product name and effective price', () => {
+    fc.assert(
+      fc.property(productArb, (product) => {
+        const url = buildSingleProductUrl(product);
+        const decoded = decodeURIComponent(url.split('?text=')[1]);
+
+        const effectivePrice = product.discounted_price ?? product.original_price;
+
+        const containsNumber = url.includes('wa.me/254793636022');
+        const containsName = decoded.includes(product.name);
+        const containsPrice = decoded.includes(`KES ${effectivePrice}`);
+
+        return containsNumber && containsName && containsPrice;
+      }),
+      { numRuns: 25 },
+    );
+  });
+});
+
+describe('buildCartCheckoutUrl — Property 6: Cart checkout WhatsApp message contains all items', () => {
+  it('decoded message contains every item name, quantity, price, and correct total', () => {
+    fc.assert(
+      fc.property(fc.array(cartItemArb, { minLength: 1, maxLength: 20 }), (items) => {
+        const url = buildCartCheckoutUrl(items);
+        const decoded = decodeURIComponent(url.split('?text=')[1]);
+
+        const allNamesPresent = items.every((item) => decoded.includes(item.name));
+        const allQuantitiesPresent = items.every((item) =>
+          decoded.includes(`x${item.quantity}`),
+        );
+        const allPricesPresent = items.every((item) =>
+          decoded.includes(`KES ${item.effective_price}`),
+        );
+
+        const expectedTotal = items.reduce(
+          (sum, item) => sum + item.effective_price * item.quantity,
+          0,
+        );
+        const totalPresent = decoded.includes(`Total: KES ${expectedTotal}`);
+
+        return allNamesPresent && allQuantitiesPresent && allPricesPresent && totalPresent;
+      }),
+      { numRuns: 25 },
+    );
+  });
+});

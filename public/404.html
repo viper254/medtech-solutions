@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Medtech Solutions</title>
+    <script>
+      // GitHub Pages SPA redirect trick
+      // Stores the path in sessionStorage and redirects to the root
+      var path = window.location.pathname;
+      var search = window.location.search;
+      var hash = window.location.hash;
+      sessionStorage.setItem(
+        'spa_redirect',
+        path.slice(1) + (search ? search : '') + (hash ? hash : '')
+      );
+      window.location.replace('/');
+    </script>
+  </head>
+  <body></body>
+</html>
