@@ -40,7 +40,7 @@ vi.mock('../lib/supabaseClient', () => {
       delete: () => ({
         eq: (field: string, value: string) => {
           for (const [key, product] of store.entries()) {
-            if ((product as Record<string, unknown>)[field] === value) {
+            if ((product as unknown as Record<string, unknown>)[field] === value) {
               store.delete(key);
             }
           }
@@ -50,7 +50,7 @@ vi.mock('../lib/supabaseClient', () => {
       select: (_cols?: string) => ({
         eq: (field: string, value: string) => {
           const results = [...store.values()].filter(
-            (p) => (p as Record<string, unknown>)[field] === value,
+            (p) => (p as unknown as Record<string, unknown>)[field] === value,
           );
           return { data: results, error: null };
         },
@@ -117,6 +117,9 @@ const productArb = fc
     description: fc.string({ minLength: 1, maxLength: 200 }),
     original_price: originalPriceArb,
     discounted_price: fc.option(fc.integer({ min: 1, max: 999_999 }), { nil: null }),
+    price_max: fc.option(fc.integer({ min: 1, max: 1_999_999 }), { nil: null }),
+    offer_price: fc.option(fc.integer({ min: 1, max: 999_999 }), { nil: null }),
+    offer_expires_at: fc.option(fc.constant('2099-01-01T00:00:00Z'), { nil: null }),
     stock_quantity: fc.nat({ max: 9999 }),
     media: fc.constant([]),
     created_at: fc.constant('2024-01-01T00:00:00Z'),
@@ -144,10 +147,10 @@ describe('Property 12: Discounted price round-trip', () => {
         supabase.from('products').upsert(productWithDiscount);
 
         // Select back by id
-        const { data } = supabase
+        const { data } = (supabase
           .from('products')
           .select('*')
-          .eq('id', productWithDiscount.id);
+          .eq('id', productWithDiscount.id)) as any;
 
         if (!data || data.length === 0) return false;
         const fetched = data[0] as Product;
@@ -189,10 +192,10 @@ describe('Property 13: Product edit round-trip', () => {
           supabase.from('products').upsert(updated);
 
           // Re-fetch by id
-          const { data } = supabase
+          const { data } = (supabase
             .from('products')
             .select('*')
-            .eq('id', original.id);
+            .eq('id', original.id)) as any;
 
           if (!data || data.length === 0) return false;
           const fetched = data[0] as Product;
@@ -223,20 +226,20 @@ describe('Property 14: Deleted product no longer appears in catalog', () => {
         supabase.from('products').upsert(product);
 
         // Confirm it exists
-        const { data: before } = supabase
+        const { data: before } = (supabase
           .from('products')
           .select('*')
-          .eq('id', product.id);
+          .eq('id', product.id)) as any;
         if (!before || before.length === 0) return false;
 
         // Delete
         supabase.from('products').delete().eq('id', product.id);
 
         // Select again — should be empty
-        const { data: after } = supabase
+        const { data: after } = (supabase
           .from('products')
           .select('*')
-          .eq('id', product.id);
+          .eq('id', product.id)) as any;
 
         return after !== null && after.length === 0;
       }),

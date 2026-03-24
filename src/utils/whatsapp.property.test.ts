@@ -24,6 +24,9 @@ const productArb: fc.Arbitrary<Product> = fc.record({
   description: fc.string({ minLength: 1, maxLength: 200 }),
   original_price: fc.float({ min: 1, max: 100_000, noNaN: true }),
   discounted_price: fc.option(fc.float({ min: 1, max: 100_000, noNaN: true }), { nil: null }),
+  price_max: fc.option(fc.float({ min: 1, max: 200_000, noNaN: true }), { nil: null }),
+  offer_price: fc.option(fc.float({ min: 1, max: 100_000, noNaN: true }), { nil: null }),
+  offer_expires_at: fc.option(fc.constant('2099-01-01T00:00:00Z'), { nil: null }),
   stock_quantity: fc.nat({ max: 1000 }),
   media: fc.constant([]),
   created_at: fc.constant('2024-01-01T00:00:00Z'),
@@ -34,6 +37,8 @@ const cartItemArb: fc.Arbitrary<CartItem> = fc.record({
   product_id: fc.uuid(),
   name: fc.string({ minLength: 1, maxLength: 80 }),
   effective_price: fc.float({ min: 1, max: 100_000, noNaN: true }),
+  price_type: fc.constantFrom('offer' as const, 'discounted' as const, 'regular' as const),
+  price_max: fc.option(fc.float({ min: 1, max: 200_000, noNaN: true }), { nil: null }),
   quantity: fc.integer({ min: 1, max: 100 }),
   thumbnail_url: fc.constant(''),
 });

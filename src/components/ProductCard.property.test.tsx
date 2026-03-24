@@ -2,9 +2,8 @@
 
 import { describe, it, vi } from 'vitest';
 import * as fc from 'fast-check';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import * as React from 'react';
 import ProductCard from './ProductCard';
 import type { Product } from '../types';
 
@@ -32,6 +31,9 @@ const productArb: fc.Arbitrary<Product> = fc.record({
   description: fc.string({ minLength: 1, maxLength: 200 }),
   original_price: fc.integer({ min: 1, max: 100_000 }),
   discounted_price: fc.option(fc.integer({ min: 1, max: 100_000 }), { nil: null }),
+  price_max: fc.option(fc.integer({ min: 1, max: 200_000 }), { nil: null }),
+  offer_price: fc.option(fc.integer({ min: 1, max: 100_000 }), { nil: null }),
+  offer_expires_at: fc.option(fc.constant('2099-01-01T00:00:00Z'), { nil: null }),
   stock_quantity: fc.nat({ max: 1000 }),
   media: fc.constant([]),
   created_at: fc.constant('2024-01-01T00:00:00Z'),

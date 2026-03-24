@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import {
   cartReducer,
   loadCartFromStorage,
@@ -11,6 +11,8 @@ const item1: CartItem = {
   product_id: 'p1',
   name: 'Phone A',
   effective_price: 15000,
+  price_type: 'regular',
+  price_max: null,
   quantity: 1,
   thumbnail_url: 'https://example.com/phone-a.jpg',
 };
@@ -19,6 +21,8 @@ const item2: CartItem = {
   product_id: 'p2',
   name: 'Laptop B',
   effective_price: 55000,
+  price_type: 'regular',
+  price_max: null,
   quantity: 2,
   thumbnail_url: 'https://example.com/laptop-b.jpg',
 };

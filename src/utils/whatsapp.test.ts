@@ -9,6 +9,9 @@ const baseProduct: Product = {
   description: 'A great phone',
   original_price: 45000,
   discounted_price: null,
+  price_max: null,
+  offer_price: null,
+  offer_expires_at: null,
   stock_quantity: 10,
   media: [],
   created_at: '2024-01-01T00:00:00Z',
@@ -58,8 +61,8 @@ describe('buildSingleProductUrl', () => {
 
 describe('buildCartCheckoutUrl', () => {
   const items: CartItem[] = [
-    { product_id: '1', name: 'iPhone 14', effective_price: 120000, quantity: 1, thumbnail_url: '' },
-    { product_id: '2', name: 'AirPods Pro', effective_price: 25000, quantity: 2, thumbnail_url: '' },
+    { product_id: '1', name: 'iPhone 14', effective_price: 120000, price_type: 'regular', price_max: null, quantity: 1, thumbnail_url: '' },
+    { product_id: '2', name: 'AirPods Pro', effective_price: 25000, price_type: 'regular', price_max: null, quantity: 2, thumbnail_url: '' },
   ];
 
   it('targets the correct WhatsApp number', () => {

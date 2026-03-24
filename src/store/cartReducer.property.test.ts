@@ -14,6 +14,8 @@ const cartItemArb: fc.Arbitrary<CartItem> = fc.record({
   product_id: fc.uuid(),
   name: fc.string({ minLength: 1, maxLength: 80 }),
   effective_price: fc.integer({ min: 1, max: 100_000 }),
+  price_type: fc.constantFrom('offer' as const, 'discounted' as const, 'regular' as const),
+  price_max: fc.option(fc.integer({ min: 1, max: 200_000 }), { nil: null }),
   quantity: fc.integer({ min: 1, max: 100 }),
   thumbnail_url: fc.constant(''),
 });

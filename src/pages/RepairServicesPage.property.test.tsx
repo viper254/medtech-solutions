@@ -2,8 +2,7 @@
 
 import { describe, it, vi, beforeEach } from 'vitest';
 import * as fc from 'fast-check';
-import { render, within, act } from '@testing-library/react';
-import * as React from 'react';
+import { render, act } from '@testing-library/react';
 import type { RepairService } from '../types';
 
 /**

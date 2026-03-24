@@ -4,16 +4,13 @@
     <meta charset="utf-8" />
     <title>Medtech Solutions</title>
     <script>
-      // GitHub Pages SPA redirect trick
-      // Stores the path in sessionStorage and redirects to the root
-      var path = window.location.pathname;
+      // GitHub Pages SPA redirect — strips the base path then stores the route
+      var base = '/medtech-solutions';
+      var path = window.location.pathname.slice(base.length) || '/';
       var search = window.location.search;
       var hash = window.location.hash;
-      sessionStorage.setItem(
-        'spa_redirect',
-        path.slice(1) + (search ? search : '') + (hash ? hash : '')
-      );
-      window.location.replace('/');
+      sessionStorage.setItem('spa_redirect', path + search + hash);
+      window.location.replace(base + '/');
     </script>
   </head>
   <body></body>
