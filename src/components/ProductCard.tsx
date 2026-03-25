@@ -135,7 +135,7 @@ export default function ProductCard({ product, onAddToCart, view = 'grid' }: Pro
         />
       )}
 
-      <div style={isList ? styles.cardList : styles.card}>
+      <div style={isList ? styles.cardList : styles.card} className="product-card-hover">
         {/* Thumbnail */}
         <Link to={`/products/${id}`} style={isList ? styles.imageLinkList : styles.imageLink} tabIndex={-1} aria-hidden="true">
           {thumbnailUrl ? (
@@ -223,8 +223,8 @@ export default function ProductCard({ product, onAddToCart, view = 'grid' }: Pro
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  card: { position: 'relative', display: 'flex', flexDirection: 'column', borderRadius: '8px', border: '1px solid #dde3ec', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.07)' },
-  cardList: { position: 'relative', display: 'flex', flexDirection: 'row', borderRadius: '8px', border: '1px solid #dde3ec', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.07)', alignItems: 'stretch' },
+  card: { position: 'relative', display: 'flex', flexDirection: 'column', borderRadius: '12px', border: '1px solid #dde3ec', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 2px 8px rgba(15,31,61,0.08)' },
+  cardList: { position: 'relative', display: 'flex', flexDirection: 'row', borderRadius: '12px', border: '1px solid #dde3ec', overflow: 'hidden', backgroundColor: '#fff', boxShadow: '0 2px 8px rgba(15,31,61,0.08)', alignItems: 'stretch' },
   imageLink: { display: 'block', lineHeight: 0, flexShrink: 0 },
   imageLinkList: { display: 'block', lineHeight: 0, flexShrink: 0, width: '140px' },
   thumbnail: { width: '100%', height: '200px', objectFit: 'cover', display: 'block' },
@@ -250,7 +250,7 @@ const styles: Record<string, React.CSSProperties> = {
   countdown: { fontSize: '0.75rem', fontWeight: 600, color: '#c05621', margin: 0, backgroundColor: '#fff5eb', border: '1px solid #fbd38d', borderRadius: '4px', padding: '2px 6px', display: 'inline-block', alignSelf: 'flex-start' },
   actionsCol: { display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: 'auto' },
   actionsRow: { display: 'flex', gap: '0.4rem', marginTop: '0.5rem', flexWrap: 'wrap' as const },
-  addToCartBtn: { padding: '0.45rem 0.75rem', backgroundColor: '#1d6fa4', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', width: '100%' },
-  orderNowBtn: { padding: '0.45rem 0.75rem', backgroundColor: '#25d366', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', width: '100%' },
+  addToCartBtn: { padding: '0.5rem 0.75rem', backgroundColor: '#1d6fa4', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', width: '100%', transition: 'background-color 0.15s ease, transform 0.1s ease' },
+  orderNowBtn: { padding: '0.5rem 0.75rem', backgroundColor: '#25d366', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', width: '100%', transition: 'background-color 0.15s ease, transform 0.1s ease' },
   btnDisabled: { backgroundColor: '#a0aec0', cursor: 'not-allowed' },
 };

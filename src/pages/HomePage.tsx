@@ -67,10 +67,19 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
           <p style={styles.heroSub}>
             Phones · Laptops · Accessories · Expert Repairs · Countrywide Delivery
           </p>
-          <Link to="/catalog" style={styles.shopNowBtn}>
+          <Link to="/catalog" style={styles.shopNowBtn} className="btn-transition">
             Shop Now
           </Link>
         </div>
+      </section>
+
+      {/* Category quick links */}
+      <section style={styles.categoryRow} aria-label="Shop by category">
+        {(['Phones', 'Laptops', 'Desktops', 'Accessories'] as const).map((cat) => (
+          <Link key={cat} to={`/catalog?category=${cat}`} style={styles.categoryChip} className="btn-transition">
+            {cat === 'Phones' ? '📱' : cat === 'Laptops' ? '💻' : cat === 'Desktops' ? '🖥️' : '🎧'} {cat}
+          </Link>
+        ))}
       </section>
 
       {/* Delivery & Payment Strip */}
@@ -81,7 +90,7 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
       {/* Products */}
       <section style={styles.section} aria-label="All products">
         <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionHeading}>Our Products</h2>
+          <h2 style={styles.sectionHeading} className="section-heading-accent">Our Products</h2>
           <div style={styles.viewToggle} aria-label="View mode">
             <button
               onClick={() => setView('grid')}
@@ -138,44 +147,70 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
 
 const styles: Record<string, React.CSSProperties> = {
   hero: {
-    background: 'linear-gradient(135deg, #0f1f3d 0%, #1d6fa4 100%)',
+    background: 'linear-gradient(135deg, #0a1628 0%, #0f1f3d 40%, #1d6fa4 100%)',
     color: '#fff',
-    padding: '4.5rem 1.5rem',
+    padding: '5rem 1.5rem',
     textAlign: 'center',
+    position: 'relative',
+    overflow: 'hidden',
   },
-  heroContent: { maxWidth: '640px', margin: '0 auto' },
+  heroContent: { maxWidth: '640px', margin: '0 auto', position: 'relative', zIndex: 1 },
   heroTitle: {
-    fontSize: 'clamp(1.75rem, 5vw, 2.75rem)',
+    fontSize: 'clamp(2rem, 5vw, 3rem)',
     fontWeight: 800,
     margin: '0 0 0.75rem',
-    lineHeight: 1.2,
+    lineHeight: 1.15,
+    letterSpacing: '-0.02em',
   },
   heroTagline: {
     fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
-    opacity: 0.9,
+    opacity: 0.92,
     margin: '0 0 0.5rem',
     lineHeight: 1.5,
   },
   heroSub: {
     fontSize: 'clamp(0.85rem, 2vw, 1rem)',
-    opacity: 0.75,
-    margin: '0 0 2rem',
+    opacity: 0.7,
+    margin: '0 0 2.25rem',
     lineHeight: 1.5,
   },
   shopNowBtn: {
     display: 'inline-block',
-    padding: '0.8rem 2.25rem',
+    padding: '0.85rem 2.5rem',
     backgroundColor: '#fff',
     color: '#0f1f3d',
     borderRadius: '999px',
     fontWeight: 700,
     fontSize: '1rem',
     textDecoration: 'none',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+  },
+  categoryRow: {
+    display: 'flex',
+    flexWrap: 'wrap' as const,
+    justifyContent: 'center',
+    gap: '0.75rem',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '1.75rem 1rem',
+  },
+  categoryChip: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.4rem',
+    padding: '0.55rem 1.25rem',
+    backgroundColor: '#fff',
+    color: '#0f1f3d',
+    border: '1px solid #dde3ec',
+    borderRadius: '999px',
+    fontWeight: 600,
+    fontSize: '0.9rem',
+    textDecoration: 'none',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
   },
   stripWrapper: {
     maxWidth: '1200px',
-    margin: '2rem auto',
+    margin: '0 auto 2rem',
     padding: '0 1rem',
   },
   section: {
@@ -187,7 +222,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '1.25rem',
+    marginBottom: '1.5rem',
   },
   sectionHeading: {
     fontSize: '1.5rem',
@@ -207,6 +242,7 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: '#fff',
     color: '#5a6a80',
     cursor: 'pointer',
+    transition: 'background 0.15s, color 0.15s',
   },
   viewBtnActive: {
     backgroundColor: '#0f1f3d',
@@ -225,21 +261,22 @@ const styles: Record<string, React.CSSProperties> = {
   },
   emptyMsg: { color: '#718096', textAlign: 'center', padding: '2rem 0' },
   whatsappSection: {
-    backgroundColor: '#0f1f3d',
+    background: 'linear-gradient(135deg, #0a1628 0%, #0f1f3d 100%)',
     textAlign: 'center',
-    padding: '2.5rem 1rem',
+    padding: '3rem 1rem',
   },
-  whatsappText: { fontSize: '1.1rem', color: '#c8d8ea', marginBottom: '1rem' },
+  whatsappText: { fontSize: '1.1rem', color: '#c8d8ea', marginBottom: '1.25rem' },
   whatsappBtn: {
     display: 'inline-flex',
     alignItems: 'center',
     gap: '0.5rem',
-    padding: '0.75rem 1.75rem',
+    padding: '0.8rem 2rem',
     backgroundColor: '#25D366',
     color: '#fff',
     borderRadius: '999px',
     fontWeight: 700,
     fontSize: '1rem',
     textDecoration: 'none',
+    boxShadow: '0 4px 16px rgba(37,211,102,0.35)',
   },
 };

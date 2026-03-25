@@ -1,14 +1,14 @@
 /* ── Design tokens ──────────────────────────────────────────────────────────── */
 :root {
   /* Brand */
-  --color-navy:       #0f1f3d;   /* primary dark */
-  --color-navy-mid:   #1a3a5c;   /* navbar, hero */
-  --color-blue:       #1d6fa4;   /* accent / CTA */
-  --color-blue-light: #e8f2fa;   /* tinted backgrounds */
+  --color-navy:       #0f1f3d;
+  --color-navy-mid:   #1a3a5c;
+  --color-blue:       #1d6fa4;
+  --color-blue-light: #e8f2fa;
 
   /* Neutrals */
   --color-white:      #ffffff;
-  --color-surface:    #f5f7fa;   /* page background */
+  --color-surface:    #f0f4f8;
   --color-border:     #dde3ec;
   --color-text:       #0f1f3d;
   --color-text-muted: #5a6a80;
@@ -17,6 +17,16 @@
   --color-success:    #1a7a4a;
   --color-error:      #b91c1c;
   --color-whatsapp:   #25d366;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 4px rgba(0,0,0,0.07);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:  0 8px 32px rgba(0,0,0,0.14);
+
+  /* Radius */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  16px;
 
   /* Typography */
   font-family: 'Inter', system-ui, -apple-system, Helvetica, Arial, sans-serif;
@@ -33,6 +43,8 @@
 
 /* ── Reset ──────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
@@ -65,6 +77,53 @@ textarea:focus-visible {
 }
 
 img { max-width: 100%; height: auto; display: block; }
+
+/* ── Card hover lift ────────────────────────────────────────────────────────── */
+.product-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.product-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(15,31,61,0.13);
+}
+
+/* ── Button transitions ─────────────────────────────────────────────────────── */
+.btn-transition {
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+.btn-transition:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+.btn-transition:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* ── Nav link hover ─────────────────────────────────────────────────────────── */
+.nav-link-hover {
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.nav-link-hover:hover {
+  background-color: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+}
+
+/* ── Section heading accent ─────────────────────────────────────────────────── */
+.section-heading-accent {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.4rem;
+}
+.section-heading-accent::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, #1d6fa4, #25d366);
+  border-radius: 999px;
+}
 
 /* ── Utility ────────────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {

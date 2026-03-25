@@ -43,14 +43,14 @@ export default function Navbar({ cartItemCount = 0 }: NavbarProps) {
         <ul style={styles.desktopLinks} className="navbar-desktop-links">
           {CATEGORIES.map((cat) => (
             <li key={cat}>
-              <Link to={`/catalog?category=${cat}`} style={styles.navLink}>
+              <Link to={`/catalog?category=${cat}`} style={styles.navLink} className="nav-link-hover">
                 {cat}
               </Link>
             </li>
           ))}
           {NAV_LINKS.map(({ label, to }) => (
             <li key={label}>
-              <Link to={to} style={styles.navLink}>{label}</Link>
+              <Link to={to} style={styles.navLink} className="nav-link-hover">{label}</Link>
             </li>
           ))}
         </ul>
@@ -134,13 +134,15 @@ export default function Navbar({ cartItemCount = 0 }: NavbarProps) {
 
 const styles: Record<string, React.CSSProperties> = {
   nav: {
-    backgroundColor: '#0f1f3d',
+    backgroundColor: 'rgba(15, 31, 61, 0.85)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
     color: '#fff',
     position: 'sticky',
     top: 0,
     zIndex: 1000,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
-    borderBottom: '1px solid #1a3a5c',
+    boxShadow: '0 2px 16px rgba(0,0,0,0.35)',
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
   },
   container: {
     maxWidth: '1280px',
