@@ -1,5 +1,6 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import type { Product } from './types';
 import type { CartState, CartAction } from './store/cartReducer';
 import { cartReducer, loadCartFromStorage, saveCartToStorage } from './store/cartReducer';
@@ -132,6 +133,7 @@ export default function App() {
 
         <WhatsAppFAB />
       </BrowserRouter>
+      <Analytics />
     </CartContext.Provider>
   );
 }
