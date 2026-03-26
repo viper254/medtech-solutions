@@ -62,10 +62,10 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
         <div style={styles.heroContent}>
           <h1 style={styles.heroTitle}>Medtech Solutions</h1>
           <p style={styles.heroTagline}>
-            Your One-Stop Tech Hub — gadgets that empower your productivity
+            Home of Quality, Reliable &amp; Affordable Solutions
           </p>
           <p style={styles.heroSub}>
-            Phones · Laptops · Accessories · Expert Repairs · Countrywide Delivery
+            Tech accessories · Medical equipment · Expert repairs · Countrywide delivery
           </p>
           <Link to="/catalog" style={styles.shopNowBtn} className="btn-transition">
             Shop Now
@@ -131,7 +131,7 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
 
       {/* WhatsApp CTA */}
       <section style={styles.whatsappSection} aria-label="Contact via WhatsApp">
-        <p style={styles.whatsappText}>Have a question or need help choosing a product?</p>
+        <p style={styles.whatsappText}>Need help choosing a product or have a question? We're here.</p>
         <a
           href="https://wa.me/254793636022"
           target="_blank"

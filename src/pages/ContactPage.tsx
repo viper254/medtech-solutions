@@ -62,8 +62,8 @@ export default function ContactPage() {
       {/* Hero */}
       <section style={styles.hero} aria-label="Contact hero">
         <h1 style={styles.heroTitle}>Get in Touch</h1>
-        <p style={styles.slogan}>Medtech Solutions — gadgets that empower your productivity.</p>
-        <p style={styles.heroSub}>Where Technology Meets Excellence</p>
+        <p style={styles.slogan}>Home of Quality, Reliable &amp; Affordable Solutions</p>
+        <p style={styles.heroSub}>Affordable tech accessories and medical equipment tailored to your needs</p>
       </section>
 
       <div style={styles.content}>
@@ -106,9 +106,9 @@ export default function ContactPage() {
               <div>
                 <p style={styles.contactLabel}>We Offer</p>
                 <p style={styles.contactValuePlain}>Phones &amp; Accessories</p>
-                <p style={styles.contactValuePlain}>Laptops &amp; Accessories</p>
+                <p style={styles.contactValuePlain}>Laptops &amp; Laptop Gear</p>
+                <p style={styles.contactValuePlain}>Medical Equipment</p>
                 <p style={styles.contactValuePlain}>Expert Repairs</p>
-                <p style={styles.contactValuePlain}>Tech &amp; Gadgets Guidance</p>
               </div>
             </div>
           </div>

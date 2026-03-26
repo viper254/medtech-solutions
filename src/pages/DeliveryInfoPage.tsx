@@ -11,8 +11,8 @@ export default function DeliveryInfoPage() {
           <h2 id="delivery-heading" style={styles.cardHeading}>Delivery</h2>
           <ul style={styles.list}>
             <li>Nationwide delivery available across Kenya</li>
-            <li>Estimated delivery time: <strong>2–5 business days</strong></li>
-            <li>Orders dispatched within 1 business day of confirmation</li>
+            <li>Shipping processed within <strong>1–6 business days</strong></li>
+            <li>Tracking provided upon dispatch</li>
             <li>You will be contacted via WhatsApp or phone to confirm your order and delivery address</li>
             <li>Delivery fees may apply depending on your location — our team will advise you at checkout</li>
           </ul>
@@ -26,16 +26,26 @@ export default function DeliveryInfoPage() {
           </ul>
         </section>
 
-        <section style={styles.card} aria-labelledby="contact-heading">
-          <h2 id="contact-heading" style={styles.cardHeading}>Questions?</h2>
+        <section style={styles.card} aria-labelledby="returns-heading">
+          <h2 id="returns-heading" style={styles.cardHeading}>Returns &amp; Refunds</h2>
+          <ul style={styles.list}>
+            <li>Unused items can be returned within <strong>72 hours of delivery</strong></li>
+            <li>For damaged or defective products, contact us for a replacement or refund</li>
+            <li>Special discounts are available and can be verified at checkout</li>
+            <li>Warranty details are found in individual product descriptions</li>
+            <li>Please follow product care instructions for optimal use</li>
+          </ul>
+        </section>
+
+        <section style={styles.card} aria-labelledby="availability-heading">
+          <h2 id="availability-heading" style={styles.cardHeading}>Product Availability</h2>
           <p style={styles.text}>
-            Reach us on WhatsApp at{' '}
+            All products are subject to availability. Our customer support team is available for any inquiries — reach us on WhatsApp at{' '}
             <a href="https://wa.me/254793636022" style={styles.link} target="_blank" rel="noopener noreferrer">
               +254 793 636 022
             </a>{' '}
-            or{' '}
-            <a href="tel:+254756597813" style={styles.link}>+254 756 597 813</a>,
-            or visit us at Kisii Market Plaza or Platinum Plaza, Nairobi.
+            or call{' '}
+            <a href="tel:+254756597813" style={styles.link}>+254 756 597 813</a>.
           </p>
         </section>
       </div>
