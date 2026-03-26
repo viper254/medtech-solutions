@@ -66,13 +66,13 @@ export default function Navbar({ cartItemCount = 0 }: NavbarProps) {
             style={styles.searchInput}
           />
           <button type="submit" style={styles.searchBtn} aria-label="Submit search">
-            🔍
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </button>
         </form>
 
         {/* Cart icon */}
         <Link to="/cart" style={styles.cartLink} aria-label={`Cart, ${cartItemCount} items`}>
-          🛒
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           {cartItemCount > 0 && (
             <span style={styles.badge}>{cartItemCount > 99 ? '99+' : cartItemCount}</span>
           )}
@@ -123,7 +123,7 @@ export default function Navbar({ cartItemCount = 0 }: NavbarProps) {
               style={styles.mobileSearchInput}
             />
             <button type="submit" style={styles.searchBtn} aria-label="Submit search">
-              🔍
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </button>
           </form>
         </div>
@@ -221,9 +221,10 @@ const styles: Record<string, React.CSSProperties> = {
     position: 'relative',
     color: '#fff',
     textDecoration: 'none',
-    fontSize: '1.4rem',
     flexShrink: 0,
     lineHeight: 1,
+    display: 'flex',
+    alignItems: 'center',
   },
   badge: {
     position: 'absolute',

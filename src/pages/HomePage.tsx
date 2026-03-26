@@ -77,7 +77,7 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
       <section style={styles.categoryRow} aria-label="Shop by category">
         {(['Phones', 'Laptops', 'Desktops', 'Accessories'] as const).map((cat) => (
           <Link key={cat} to={`/catalog?category=${cat}`} style={styles.categoryChip} className="btn-transition">
-            {cat === 'Phones' ? '📱' : cat === 'Laptops' ? '💻' : cat === 'Desktops' ? '🖥️' : '🎧'} {cat}
+            {cat}
           </Link>
         ))}
       </section>
@@ -138,7 +138,7 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
           rel="noopener noreferrer"
           style={styles.whatsappBtn}
         >
-          💬 Chat with us on WhatsApp
+          Chat with us on WhatsApp
         </a>
       </section>
     </main>
