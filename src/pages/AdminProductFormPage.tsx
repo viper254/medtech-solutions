@@ -7,7 +7,7 @@ import { validateProductForm } from '../utils/adminFormValidation';
 import type { ProductFormErrors } from '../utils/adminFormValidation';
 
 type Category = Product['category'];
-const CATEGORIES: Category[] = ['Phones', 'Laptops', 'Desktops', 'Accessories'];
+const CATEGORIES: Category[] = ['Phones', 'Laptops', 'Desktops', 'Accessories', 'Medical Equipment'];
 
 interface FormValues {
   name: string;

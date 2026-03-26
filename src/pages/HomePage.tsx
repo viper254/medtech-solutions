@@ -75,7 +75,7 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
 
       {/* Category quick links */}
       <section style={styles.categoryRow} aria-label="Shop by category">
-        {(['Phones', 'Laptops', 'Desktops', 'Accessories'] as const).map((cat) => (
+        {(['Phones', 'Laptops', 'Desktops', 'Accessories', 'Medical Equipment'] as const).map((cat) => (
           <Link key={cat} to={`/catalog?category=${cat}`} style={styles.categoryChip} className="btn-transition">
             {cat}
           </Link>

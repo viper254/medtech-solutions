@@ -103,7 +103,8 @@ export default function App() {
           <div style={footerStyles.inner}>
             <div style={footerStyles.brand}>
               <span style={footerStyles.brandName}>Medtech Solutions</span>
-              <p style={footerStyles.tagline}>Your One-Stop Tech Hub in Kenya</p>
+              <p style={footerStyles.tagline}>Home of Quality, Reliable &amp; Affordable Solutions</p>
+              <p style={footerStyles.taglineDesc}>Affordable tech accessories and medical equipment for home, office and school — delivered countrywide.</p>
             </div>
             <div style={footerStyles.col}>
               <p style={footerStyles.colHeading}>Shop</p>
@@ -111,6 +112,7 @@ export default function App() {
               <Link to="/catalog?category=Laptops" style={footerStyles.link}>Laptops</Link>
               <Link to="/catalog?category=Desktops" style={footerStyles.link}>Desktops</Link>
               <Link to="/catalog?category=Accessories" style={footerStyles.link}>Accessories</Link>
+              <Link to="/catalog?category=Medical Equipment" style={footerStyles.link}>Medical Equipment</Link>
             </div>
             <div style={footerStyles.col}>
               <p style={footerStyles.colHeading}>Info</p>
@@ -154,7 +156,8 @@ const footerStyles: Record<string, React.CSSProperties> = {
   },
   brand: { display: 'flex', flexDirection: 'column', gap: '0.4rem' },
   brandName: { fontSize: '1.1rem', fontWeight: 700, color: '#fff' },
-  tagline: { fontSize: '0.82rem', color: '#7a9ab8', margin: 0 },
+  tagline: { fontSize: '0.85rem', color: '#7a9ab8', margin: 0, fontWeight: 600 },
+  taglineDesc: { fontSize: '0.78rem', color: '#5a7a9a', margin: '0.35rem 0 0', lineHeight: 1.5 },
   col: { display: 'flex', flexDirection: 'column', gap: '0.5rem' },
   colHeading: { fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: '#7a9ab8', margin: '0 0 0.25rem' },
   link: { color: '#c8d8ea', textDecoration: 'none', fontSize: '0.875rem' },

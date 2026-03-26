@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import logoSrc from '../assets/logo.jpeg';
 import './Navbar.css';
 
-const CATEGORIES = ['Phones', 'Laptops', 'Desktops', 'Accessories'] as const;
+const CATEGORIES = ['Phones', 'Laptops', 'Desktops', 'Accessories', 'Medical Equipment'] as const;
 
 const NAV_LINKS = [
   { label: 'Repairs', to: '/repair' },

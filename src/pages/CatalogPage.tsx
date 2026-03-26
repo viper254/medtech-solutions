@@ -5,7 +5,7 @@ import { Product } from '../types';
 import ProductCard from '../components/ProductCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 
-const CATEGORIES = ['All', 'Phones', 'Laptops', 'Desktops', 'Accessories'] as const;
+const CATEGORIES = ['All', 'Phones', 'Laptops', 'Desktops', 'Accessories', 'Medical Equipment'] as const;
 type CategoryTab = (typeof CATEGORIES)[number];
 type ViewMode = 'grid' | 'list';
 
