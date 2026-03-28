@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase, mapProducts } from '../lib/supabaseClient';
 import LoadingSpinner from '../components/LoadingSpinner';
 import type { Product } from '../types';
@@ -10,6 +10,8 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -35,6 +37,20 @@ export default function AdminDashboardPage() {
     }
     setLoading(false);
   }
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    await supabase.auth.signOut();
+    navigate('/admin/login');
+  }
+
+  // Stats
+  const totalProducts = products.length;
+  const outOfStock = products.filter((p) => p.stock_quantity === 0).length;
+  const categoryCounts = products.reduce<Record<string, number>>((acc, p) => {
+    acc[p.category] = (acc[p.category] ?? 0) + 1;
+    return acc;
+  }, {});
 
   async function handleDelete(product: Product) {
     const confirmed = window.confirm(
@@ -65,8 +81,31 @@ export default function AdminDashboardPage() {
             <Link to="/admin/products/new" style={styles.newBtn}>
               + New Product
             </Link>
+            <button onClick={handleSignOut} disabled={signingOut} style={styles.signOutBtn}>
+              {signingOut ? 'Signing out…' : 'Sign Out'}
+            </button>
           </div>
         </div>
+
+        {/* Stats */}
+        {!loading && (
+          <div style={styles.statsRow}>
+            <div style={styles.statCard}>
+              <span style={styles.statValue}>{totalProducts}</span>
+              <span style={styles.statLabel}>Total Products</span>
+            </div>
+            <div style={{ ...styles.statCard, ...(outOfStock > 0 ? styles.statCardWarn : {}) }}>
+              <span style={styles.statValue}>{outOfStock}</span>
+              <span style={styles.statLabel}>Out of Stock</span>
+            </div>
+            {Object.entries(categoryCounts).map(([cat, count]) => (
+              <div key={cat} style={styles.statCard}>
+                <span style={styles.statValue}>{count}</span>
+                <span style={styles.statLabel}>{cat}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Toast */}
         {toast && (
@@ -283,7 +322,49 @@ const styles: Record<string, React.CSSProperties> = {
     backgroundColor: '#fff5f5',
     color: '#c53030',
   },
-  editBtn: {
+  signOutBtn: {
+    padding: '0.55rem 1.1rem',
+    backgroundColor: '#fff',
+    color: '#b91c1c',
+    border: '1px solid #fca5a5',
+    borderRadius: '6px',
+    fontWeight: 600,
+    fontSize: '0.95rem',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+  },
+  statsRow: {
+    display: 'flex',
+    flexWrap: 'wrap' as const,
+    gap: '0.75rem',
+    marginBottom: '1.5rem',
+  },
+  statCard: {
+    backgroundColor: '#fff',
+    border: '1px solid #dde3ec',
+    borderRadius: '8px',
+    padding: '0.85rem 1.25rem',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.2rem',
+    minWidth: '110px',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+  },
+  statCardWarn: {
+    borderColor: '#fca5a5',
+    backgroundColor: '#fff5f5',
+  },
+  statValue: {
+    fontSize: '1.5rem',
+    fontWeight: 700,
+    color: '#0f1f3d',
+    lineHeight: 1,
+  },
+  statLabel: {
+    fontSize: '0.75rem',
+    color: '#5a6a80',
+    fontWeight: 500,
+  },
     display: 'inline-block',
     padding: '0.35rem 0.8rem',
     backgroundColor: '#1d6fa4',
