@@ -20,6 +20,7 @@ import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminProductFormPage from './pages/AdminProductFormPage';
 import AdminRepairServicesPage from './pages/AdminRepairServicesPage';
+import AdminManagePage from './pages/AdminManagePage';
 
 // ── Cart Context ───────────────────────────────────────────────────────────────
 
@@ -96,6 +97,7 @@ export default function App() {
             <Route path="/admin/products/new" element={<AdminProductFormPage />} />
             <Route path="/admin/products/:id/edit" element={<AdminProductFormPage />} />
             <Route path="/admin/repairs" element={<AdminRepairServicesPage />} />
+            <Route path="/admin/manage" element={<AdminManagePage />} />
           </Route>
         </Routes>
 

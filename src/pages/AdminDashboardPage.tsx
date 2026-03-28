@@ -11,10 +11,21 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
   const [signingOut, setSigningOut] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
+    // Check if current user is super admin
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return;
+      const { data } = await supabase
+        .from('admins')
+        .select('is_super_admin')
+        .eq('user_id', session.user.id)
+        .single();
+      setIsSuperAdmin((data as { is_super_admin: boolean } | null)?.is_super_admin ?? false);
+    });
   }, []);
 
   useEffect(() => {
@@ -78,6 +89,11 @@ export default function AdminDashboardPage() {
             <Link to="/admin/repairs" style={styles.repairsBtn}>
               Repair Services
             </Link>
+            {isSuperAdmin && (
+              <Link to="/admin/manage" style={styles.repairsBtn}>
+                Manage Admins
+              </Link>
+            )}
             <Link to="/admin/products/new" style={styles.newBtn}>
               + New Product
             </Link>
