@@ -93,7 +93,7 @@ export default function SearchResultsPage({ onAddToCart }: SearchResultsPageProp
               style={{ ...styles.offerToggle, ...(offersOnly ? styles.offerToggleActive : {}) }}
               aria-pressed={offersOnly}
             >
-              🔥 Limited Offers
+              Limited Offers
             </button>
             <div style={styles.viewToggle} aria-label="View mode">
               <button

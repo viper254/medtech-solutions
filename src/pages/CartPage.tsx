@@ -48,12 +48,18 @@ export default function CartPage({ cart, dispatch }: CartPageProps) {
       <div style={styles.itemList} role="list" aria-label="Cart items">
         {cart.map((item) => (
           <div key={item.product_id} style={styles.item} role="listitem">
-            <img
-              src={item.thumbnail_url}
-              alt={item.name}
-              style={styles.thumbnail}
-              loading="lazy"
-            />
+            {item.thumbnail_url ? (
+              <img
+                src={item.thumbnail_url}
+                alt={item.name}
+                style={styles.thumbnail}
+                loading="lazy"
+              />
+            ) : (
+              <div style={styles.thumbnailPlaceholder} aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </div>
+            )}
 
             <div style={styles.info}>
               <p style={styles.name}>{item.name}</p>
@@ -158,6 +164,17 @@ const styles: Record<string, React.CSSProperties> = {
     objectFit: 'cover',
     borderRadius: '6px',
     flexShrink: 0,
+  },
+  thumbnailPlaceholder: {
+    width: '64px',
+    height: '64px',
+    borderRadius: '6px',
+    flexShrink: 0,
+    backgroundColor: '#f0f4f8',
+    border: '1px solid #dde3ec',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   info: {
     flex: 1,
