@@ -381,6 +381,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#5a6a80',
     fontWeight: 500,
   },
+  editBtn: {
     display: 'inline-block',
     padding: '0.35rem 0.8rem',
     backgroundColor: '#1d6fa4',
