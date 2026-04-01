@@ -4,6 +4,7 @@ import { supabase, mapProducts } from '../lib/supabaseClient';
 import { Product } from '../types';
 import MediaGallery from '../components/MediaGallery';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ProductCard from '../components/ProductCard';
 import { buildSingleProductUrl } from '../utils/whatsapp';
 import DeliveryStrip from '../components/DeliveryStrip';
 import { usePageTitle } from '../utils/usePageTitle';
@@ -90,6 +91,7 @@ const reqStyles: Record<string, React.CSSProperties> = {
 function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
@@ -122,6 +124,14 @@ function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
         } else {
           const [mapped] = mapProducts([data as Record<string, unknown>]);
           setProduct(mapped);
+          // Fetch related products in same category
+          const { data: relData } = await supabase
+            .from('products')
+            .select('*, media:product_media(*)')
+            .eq('category', (data as Record<string, unknown>).category as string)
+            .neq('id', id)
+            .limit(4);
+          if (relData) setRelated(mapProducts(relData as Array<Record<string, unknown>>));
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load product.');
@@ -236,6 +246,18 @@ function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
           )}
         </div>
       </div>
+
+      {/* Related products */}
+      {related.length > 0 && (
+        <section style={styles.relatedSection} aria-label="Related products">
+          <h2 style={styles.relatedHeading} className="section-heading-accent">You may also like</h2>
+          <div style={styles.relatedGrid}>
+            {related.map((p) => (
+              <ProductCard key={p.id} product={p} onAddToCart={onAddToCart} />
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
@@ -269,5 +291,8 @@ const styles: Record<string, React.CSSProperties> = {
   cartBtn: { flex: '1 1 auto', padding: '0.75rem 1.25rem', backgroundColor: '#1d6fa4', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' },
   cartBtnDisabled: { backgroundColor: '#a0aec0', cursor: 'not-allowed' },
   shareBtn: { padding: '0.75rem 1.25rem', backgroundColor: '#f0f4f8', color: '#0f1f3d', border: '1px solid #dde3ec', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' },
+  relatedSection: { marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid #e2e8f0' },
+  relatedHeading: { fontSize: '1.25rem', fontWeight: 700, color: '#0f1f3d', marginBottom: '1.25rem' },
+  relatedGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.25rem' },
   message: { textAlign: 'center' as const, color: '#718096', padding: '3rem 0' },
 };

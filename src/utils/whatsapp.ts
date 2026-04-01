@@ -3,6 +3,15 @@ import type { CartItem, Product } from '../types';
 const WHATSAPP_NUMBER = '254793636022';
 const BASE_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
 
+function generateRef(): string {
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(-2);
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const rand = Math.floor(Math.random() * 9000) + 1000;
+  return `ORD-${yy}${mm}${dd}-${rand}`;
+}
+
 export function getEffectivePrice(product: Product): number {
   const offerActive =
     product.offer_price != null &&
@@ -49,6 +58,7 @@ export function buildSingleProductUrl(product: Product, quantity = 1): string {
 
   const message =
     `Hi Medtech Solutions, I'd like to order:\n\n` +
+    `Ref: ${generateRef()}\n\n` +
     `Items:\n` +
     `${itemLine}\n\n` +
     `${totalLine}\n\n` +
@@ -91,6 +101,7 @@ export function buildCartCheckoutUrl(items: CartItem[]): string {
 
   const message =
     `Hi Medtech Solutions, I'd like to order:\n\n` +
+    `Ref: ${generateRef()}\n\n` +
     `Items:\n` +
     `${lines.join('\n')}\n\n` +
     `${totalLine}\n\n` +

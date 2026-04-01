@@ -204,7 +204,7 @@ export default function CatalogPage({ onAddToCart }: CatalogPageProps) {
             : 'No products match the selected price range.'}
         </p>
       ) : (
-        <div style={view === 'list' ? styles.list : styles.grid} aria-label="Products">
+        <div style={view === 'list' ? styles.list : styles.grid} className={view === 'grid' ? 'product-grid-mobile' : ''} aria-label="Products">
           {filtered.map((product) => (
             <ProductCard
               key={product.id}
