@@ -1,6 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { buildSingleProductUrl, buildCartCheckoutUrl, getEffectivePrice } from './whatsapp';
 import type { CartItem, Product } from '../types';
+
+// Mock supabase so DB calls don't run in tests
+vi.mock('../lib/supabaseClient', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      insert: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn(() => Promise.resolve({ data: { id: 'test-id' }, error: null })) })) })),
+    })),
+  },
+}));
 
 const baseProduct: Product = {
   id: '1',
@@ -31,33 +40,34 @@ describe('getEffectivePrice', () => {
 });
 
 describe('buildSingleProductUrl', () => {
-  it('targets the correct WhatsApp number', () => {
-    const url = buildSingleProductUrl(baseProduct);
+  it('targets the correct WhatsApp number', async () => {
+    const url = await buildSingleProductUrl(baseProduct);
     expect(url).toContain('https://wa.me/254793636022');
   });
 
-  it('includes the product name in the message', () => {
-    const url = buildSingleProductUrl(baseProduct);
+  it('includes the product name in the message', async () => {
+    const url = await buildSingleProductUrl(baseProduct);
     const decoded = decodeURIComponent(url.split('?text=')[1]);
     expect(decoded).toContain('Samsung Galaxy A54');
   });
 
-  it('uses original_price when no discount', () => {
-    const url = buildSingleProductUrl(baseProduct);
+  it('uses original_price when no discount', async () => {
+    const url = await buildSingleProductUrl(baseProduct);
     const decoded = decodeURIComponent(url.split('?text=')[1]);
     expect(decoded).toContain('KES 45000');
   });
 
-  it('uses discounted_price when available', () => {
-    const url = buildSingleProductUrl({ ...baseProduct, discounted_price: 39000 });
+  it('uses discounted_price when available', async () => {
+    const url = await buildSingleProductUrl({ ...baseProduct, discounted_price: 39000 });
     const decoded = decodeURIComponent(url.split('?text=')[1]);
     expect(decoded).toContain('KES 39000');
     expect(decoded).not.toContain('KES 45000');
   });
 
-  it('includes availability confirmation request', () => {
-    const decoded = decodeURIComponent(buildSingleProductUrl(baseProduct).split('?text=')[1]);
-    expect(decoded).toContain('confirm availability and delivery details');
+  it('includes availability confirmation request', async () => {
+    const url = await buildSingleProductUrl(baseProduct);
+    const decoded = decodeURIComponent(url.split('?text=')[1]);
+    expect(decoded).toContain('confirm availability and delivery');
   });
 });
 
@@ -67,30 +77,30 @@ describe('buildCartCheckoutUrl', () => {
     { product_id: '2', name: 'AirPods Pro', effective_price: 25000, price_type: 'regular', price_max: null, quantity: 2, thumbnail_url: '' },
   ];
 
-  it('targets the correct WhatsApp number', () => {
-    expect(buildCartCheckoutUrl(items)).toContain('https://wa.me/254793636022');
+  it('targets the correct WhatsApp number', async () => {
+    expect(await buildCartCheckoutUrl(items)).toContain('https://wa.me/254793636022');
   });
 
-  it('includes all item names', () => {
-    const decoded = decodeURIComponent(buildCartCheckoutUrl(items).split('?text=')[1]);
+  it('includes all item names', async () => {
+    const decoded = decodeURIComponent((await buildCartCheckoutUrl(items)).split('?text=')[1]);
     expect(decoded).toContain('iPhone 14');
     expect(decoded).toContain('AirPods Pro');
   });
 
-  it('includes quantities', () => {
-    const decoded = decodeURIComponent(buildCartCheckoutUrl(items).split('?text=')[1]);
+  it('includes quantities', async () => {
+    const decoded = decodeURIComponent((await buildCartCheckoutUrl(items)).split('?text=')[1]);
     expect(decoded).toContain('x1');
     expect(decoded).toContain('x2');
   });
 
-  it('calculates the correct total', () => {
+  it('calculates the correct total', async () => {
     // 120000*1 + 25000*2 = 170000
-    const decoded = decodeURIComponent(buildCartCheckoutUrl(items).split('?text=')[1]);
+    const decoded = decodeURIComponent((await buildCartCheckoutUrl(items)).split('?text=')[1]);
     expect(decoded).toContain('Total: KES 170000');
   });
 
-  it('includes delivery confirmation request', () => {
-    const decoded = decodeURIComponent(buildCartCheckoutUrl(items).split('?text=')[1]);
-    expect(decoded).toContain('confirm and arrange delivery');
+  it('includes delivery confirmation request', async () => {
+    const decoded = decodeURIComponent((await buildCartCheckoutUrl(items)).split('?text=')[1]);
+    expect(decoded).toContain('confirm availability and delivery');
   });
 });

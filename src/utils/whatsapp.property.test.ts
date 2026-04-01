@@ -1,14 +1,19 @@
 // Feature: medtech-solutions-website, Property 5: Single-product WhatsApp URL contains product name and effective price
 // Feature: medtech-solutions-website, Property 6: Cart checkout WhatsApp message contains all items
 
-import { describe, it } from 'vitest';
+import { describe, it, vi } from 'vitest';
 import * as fc from 'fast-check';
 import { buildSingleProductUrl, buildCartCheckoutUrl } from './whatsapp';
 import type { CartItem, Product } from '../types';
 
-/**
- * Validates: Requirements 4.1, 4.3
- */
+// Mock supabase so DB calls don't run in tests
+vi.mock('../lib/supabaseClient', () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      insert: vi.fn(() => ({ select: vi.fn(() => ({ single: vi.fn(() => Promise.resolve({ data: { id: 'test-id' }, error: null })) })) })),
+    })),
+  },
+}));
 
 const categoryArb = fc.constantFrom(
   'Phones' as const,
@@ -46,10 +51,10 @@ const cartItemArb: fc.Arbitrary<CartItem> = fc.record({
 });
 
 describe('buildSingleProductUrl — Property 5: Single-product WhatsApp URL contains product name and effective price', () => {
-  it('URL targets wa.me/254793636022, decoded message contains product name and effective price', () => {
-    fc.assert(
-      fc.property(productArb, (product) => {
-        const url = buildSingleProductUrl(product);
+  it('URL targets wa.me/254793636022, decoded message contains product name and effective price', async () => {
+    await fc.assert(
+      fc.asyncProperty(productArb, async (product) => {
+        const url = await buildSingleProductUrl(product);
         const decoded = decodeURIComponent(url.split('?text=')[1]);
 
         const effectivePrice = product.discounted_price ?? product.original_price;
@@ -66,10 +71,10 @@ describe('buildSingleProductUrl — Property 5: Single-product WhatsApp URL cont
 });
 
 describe('buildCartCheckoutUrl — Property 6: Cart checkout WhatsApp message contains all items', () => {
-  it('decoded message contains every item name, quantity, price, and correct total', () => {
-    fc.assert(
-      fc.property(fc.array(cartItemArb, { minLength: 1, maxLength: 20 }), (items) => {
-        const url = buildCartCheckoutUrl(items);
+  it('decoded message contains every item name, quantity, price, and correct total', async () => {
+    await fc.assert(
+      fc.asyncProperty(fc.array(cartItemArb, { minLength: 1, maxLength: 20 }), async (items) => {
+        const url = await buildCartCheckoutUrl(items);
         const decoded = decodeURIComponent(url.split('?text=')[1]);
 
         const allNamesPresent = items.every((item) => decoded.includes(item.name));
