@@ -1,4 +1,7 @@
+import { usePageTitle } from '../utils/usePageTitle';
+
 export default function DeliveryInfoPage() {
+  usePageTitle('Delivery & Payment');
   return (
     <main style={styles.page}>
       <section style={styles.hero} aria-label="Delivery info hero">

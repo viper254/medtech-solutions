@@ -4,6 +4,7 @@ import { supabase, mapProducts } from '../lib/supabaseClient';
 import { Product } from '../types';
 import ProductCard from '../components/ProductCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { usePageTitle } from '../utils/usePageTitle';
 
 const CATEGORIES = ['All', 'Phones', 'Laptops', 'Desktops', 'Accessories', 'Medical Equipment'] as const;
 type CategoryTab = (typeof CATEGORIES)[number];
@@ -39,6 +40,8 @@ export default function CatalogPage({ onAddToCart }: CatalogPageProps) {
     categoryParam && (CATEGORIES as readonly string[]).includes(categoryParam)
       ? categoryParam
       : 'All';
+
+  usePageTitle(activeTab === 'All' ? 'Product Catalog' : `${activeTab} — Catalog`);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

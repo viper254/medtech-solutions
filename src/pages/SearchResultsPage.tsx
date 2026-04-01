@@ -5,6 +5,7 @@ import { searchProducts } from '../utils/search';
 import { Product } from '../types';
 import ProductCard from '../components/ProductCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { usePageTitle } from '../utils/usePageTitle';
 
 type ViewMode = 'grid' | 'list';
 
@@ -33,6 +34,7 @@ interface SearchResultsPageProps {
 export default function SearchResultsPage({ onAddToCart }: SearchResultsPageProps) {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') ?? '';
+  usePageTitle(query ? `Search: ${query}` : 'Search');
 
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

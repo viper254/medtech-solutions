@@ -1,6 +1,7 @@
 /**
  * ContactPage — full business contact details for Medtech Solutions
  */
+import { usePageTitle } from '../utils/usePageTitle';
 
 function PhoneIcon() {
   return (
@@ -56,6 +57,7 @@ function ClockIcon() {
 }
 
 export default function ContactPage() {
+  usePageTitle('Contact Us');
   return (
     <main style={styles.page}>
 

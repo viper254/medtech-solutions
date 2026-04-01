@@ -6,6 +6,7 @@ import MediaGallery from '../components/MediaGallery';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { buildSingleProductUrl } from '../utils/whatsapp';
 import DeliveryStrip from '../components/DeliveryStrip';
+import { usePageTitle } from '../utils/usePageTitle';
 
 interface ProductDetailPageProps {
   onAddToCart: (product: Product, quantity: number) => void;
@@ -58,6 +59,7 @@ function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
   const { active: offerActive, countdown } = useOfferState(
     product?.offer_price != null ? product.offer_expires_at : null
   );
+  usePageTitle(product ? product.name : 'Product');
 
   useEffect(() => {
     if (!id) return;

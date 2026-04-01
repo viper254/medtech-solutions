@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://medtech-solutions-mauve.vercel.app/sitemap.xml
