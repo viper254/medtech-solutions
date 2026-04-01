@@ -48,6 +48,45 @@ function useOfferState(expiresAt: string | null): { active: boolean; countdown: 
   return { active: true, countdown: label };
 }
 
+function RequestForm({ productName }: { productName: string }) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [sent, setSent] = useState(false);
+
+  function handleRequest() {
+    if (!name.trim() || !phone.trim()) return;
+    const msg = `Hi, I'd like to request: *${productName}*\n\nName: ${name.trim()}\nPhone: ${phone.trim()}`;
+    window.open(`https://wa.me/254793636022?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+    setSent(true);
+  }
+
+  if (sent) return (
+    <div style={reqStyles.success}>Request sent via WhatsApp. We'll get back to you soon.</div>
+  );
+
+  return (
+    <div style={reqStyles.box}>
+      <p style={reqStyles.heading}>Out of stock — request this item</p>
+      <p style={reqStyles.sub}>Leave your details and we'll contact you when it's available.</p>
+      <div style={reqStyles.fields}>
+        <input style={reqStyles.input} placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} />
+        <input style={reqStyles.input} placeholder="Phone / WhatsApp number" value={phone} onChange={(e) => setPhone(e.target.value)} />
+      </div>
+      <button style={reqStyles.btn} onClick={handleRequest}>Send Request via WhatsApp</button>
+    </div>
+  );
+}
+
+const reqStyles: Record<string, React.CSSProperties> = {
+  box: { backgroundColor: '#fff5eb', border: '1px solid #fbd38d', borderRadius: '8px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' },
+  heading: { margin: 0, fontWeight: 700, fontSize: '0.95rem', color: '#0f1f3d' },
+  sub: { margin: 0, fontSize: '0.85rem', color: '#5a6a80' },
+  fields: { display: 'flex', flexDirection: 'column' as const, gap: '0.5rem' },
+  input: { padding: '0.55rem 0.75rem', fontSize: '0.9rem', border: '1px solid #dde3ec', borderRadius: '6px', outline: 'none', color: '#2d3748' },
+  btn: { padding: '0.6rem 1.25rem', backgroundColor: '#25d366', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer', alignSelf: 'flex-start' as const },
+  success: { backgroundColor: '#f0fff4', border: '1px solid #9ae6b4', borderRadius: '8px', padding: '1rem', color: '#276749', fontSize: '0.9rem', fontWeight: 500 },
+};
+
 function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
@@ -174,7 +213,27 @@ function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
             >
               Add to Cart
             </button>
+            <button
+              style={styles.shareBtn}
+              onClick={() => {
+                const url = window.location.href;
+                if (navigator.share) {
+                  navigator.share({ title: product.name, url });
+                } else {
+                  navigator.clipboard.writeText(url);
+                  alert('Link copied to clipboard');
+                }
+              }}
+              aria-label="Share this product"
+            >
+              Share
+            </button>
           </div>
+
+          {/* Request product form */}
+          {isOutOfStock && (
+            <RequestForm productName={product.name} />
+          )}
         </div>
       </div>
     </main>
@@ -209,5 +268,6 @@ const styles: Record<string, React.CSSProperties> = {
   orderBtn: { flex: '1 1 auto', padding: '0.75rem 1.25rem', backgroundColor: '#25d366', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' },
   cartBtn: { flex: '1 1 auto', padding: '0.75rem 1.25rem', backgroundColor: '#1d6fa4', color: '#fff', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' },
   cartBtnDisabled: { backgroundColor: '#a0aec0', cursor: 'not-allowed' },
+  shareBtn: { padding: '0.75rem 1.25rem', backgroundColor: '#f0f4f8', color: '#0f1f3d', border: '1px solid #dde3ec', borderRadius: '8px', fontSize: '1rem', fontWeight: 600, cursor: 'pointer' },
   message: { textAlign: 'center' as const, color: '#718096', padding: '3rem 0' },
 };

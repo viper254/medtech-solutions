@@ -55,6 +55,8 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
     return () => { cancelled = true; };
   }, []);
 
+  const featured = products.filter((p) => p.is_featured && p.stock_quantity > 0);
+
   return (
     <main>
       {/* Hero Banner */}
@@ -87,7 +89,21 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
         <DeliveryStrip />
       </div>
 
-      {/* Products */}
+      {/* Featured Products */}
+      {!loading && featured.length > 0 && (
+        <section style={styles.section} aria-label="Featured products">
+          <div style={styles.sectionHeader}>
+            <h2 style={styles.sectionHeading} className="section-heading-accent">Featured Products</h2>
+          </div>
+          <div style={styles.grid}>
+            {featured.map((product) => (
+              <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* All Products */}
       <section style={styles.section} aria-label="All products">
         <div style={styles.sectionHeader}>
           <h2 style={styles.sectionHeading} className="section-heading-accent">Our Products</h2>

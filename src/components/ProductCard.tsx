@@ -98,6 +98,7 @@ export default function ProductCard({ product, onAddToCart, view = 'grid' }: Pro
   const [showQtyPopup, setShowQtyPopup] = useState(false);
 
   const isOutOfStock = stock_quantity === 0;
+  const isLowStock = !isOutOfStock && stock_quantity <= (product.low_stock_threshold ?? 5);
   const thumbnail = media.find((m) => m.type === 'image') ?? media[0];
   const thumbnailUrl = thumbnail?.url ?? null;
 
@@ -149,7 +150,9 @@ export default function ProductCard({ product, onAddToCart, view = 'grid' }: Pro
 
         {/* Badges */}
         <div style={styles.badges}>
+          {product.is_featured && !isOutOfStock && <span style={styles.featuredBadge}>Featured</span>}
           {isOutOfStock && <span style={styles.outOfStockBadge}>Out of Stock</span>}
+          {isLowStock && <span style={styles.lowStockBadge}>Only {stock_quantity} left</span>}
           {offerActive && !isOutOfStock && <span style={styles.offerBadge}>Limited Offer</span>}
           {discountPct !== null && !isOutOfStock && (
             <span style={styles.discountBadge}>-{discountPct}%</span>
@@ -234,6 +237,8 @@ const styles: Record<string, React.CSSProperties> = {
   placeholderIcon: { fontSize: '2rem', opacity: 0.35 },
   badges: { position: 'absolute', top: '8px', left: '8px', display: 'flex', flexDirection: 'column', gap: '4px' },
   outOfStockBadge: { backgroundColor: '#e53e3e', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: '999px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' },
+  featuredBadge: { backgroundColor: '#d4a017', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: '999px', textTransform: 'uppercase' as const, letterSpacing: '0.05em' },
+  lowStockBadge: { backgroundColor: '#c05621', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: '999px' },
   offerBadge: { backgroundColor: '#c05621', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: '999px' },
   discountBadge: { backgroundColor: '#0f1f3d', color: '#fff', fontSize: '0.65rem', fontWeight: 700, padding: '2px 7px', borderRadius: '999px' },
   body: { padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 },

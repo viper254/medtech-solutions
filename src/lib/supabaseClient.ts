@@ -30,6 +30,8 @@ export function mapProducts(rawProducts: Array<Record<string, unknown>>): Produc
     offer_price: (p.offer_price as number | null) ?? null,
     offer_expires_at: (p.offer_expires_at as string | null) ?? null,
     stock_quantity: p.stock_quantity as number,
+    is_featured: (p.is_featured as boolean) ?? false,
+    low_stock_threshold: (p.low_stock_threshold as number) ?? 5,
     created_at: p.created_at as string,
     updated_at: p.updated_at as string,
     media: mapMediaUrls((p.media as Array<Record<string, unknown>>) ?? []),

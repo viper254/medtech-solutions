@@ -14,9 +14,11 @@ export interface Product {
   original_price: number;
   discounted_price: number | null;
   price_max: number | null;
-  offer_price: number | null;       // limited-time offer price
-  offer_expires_at: string | null;  // ISO timestamp — null means no active offer
+  offer_price: number | null;
+  offer_expires_at: string | null;
   stock_quantity: number;
+  is_featured: boolean;
+  low_stock_threshold: number;
   media: MediaItem[];
   created_at: string;
   updated_at: string;

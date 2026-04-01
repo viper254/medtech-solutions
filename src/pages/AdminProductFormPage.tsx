@@ -17,8 +17,10 @@ interface FormValues {
   discounted_price: string;
   price_max: string;
   offer_price: string;
-  offer_expires_at: string; // datetime-local input value
+  offer_expires_at: string;
   stock_quantity: string;
+  is_featured: boolean;
+  low_stock_threshold: string;
 }
 
 type FormErrors = ProductFormErrors;
@@ -39,6 +41,8 @@ const INITIAL_VALUES: FormValues = {
   offer_price: '',
   offer_expires_at: '',
   stock_quantity: '',
+  is_featured: false,
+  low_stock_threshold: '5',
 };
 
 export default function AdminProductFormPage() {
@@ -86,6 +90,8 @@ export default function AdminProductFormPage() {
           ? new Date(product.offer_expires_at).toISOString().slice(0, 16)
           : '',
         stock_quantity: String(product.stock_quantity),
+        is_featured: product.is_featured ?? false,
+        low_stock_threshold: String(product.low_stock_threshold ?? 5),
       });
       setExistingMedia(mapMediaUrls((product.media as unknown as Array<Record<string, unknown>>) ?? []));
       setLoading(false);
@@ -102,9 +108,9 @@ export default function AdminProductFormPage() {
   }, [newFiles]);
 
   function handleChange(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
-    // Clear error on change
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    setValues((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   }
 
@@ -174,6 +180,8 @@ export default function AdminProductFormPage() {
         offer_price: offerPrice,
         offer_expires_at: offerExpiresAt,
         stock_quantity: stockQty,
+        is_featured: values.is_featured,
+        low_stock_threshold: values.low_stock_threshold !== '' ? parseInt(values.low_stock_threshold, 10) : 5,
       };
 
       const { data: upserted, error: upsertError } = await supabase
@@ -398,6 +406,35 @@ export default function AdminProductFormPage() {
               placeholder="e.g. 10"
             />
           </Field>
+
+          {/* Featured + Low stock threshold */}
+          <div style={styles.row}>
+            <div style={styles.fieldGroup}>
+              <label style={{ ...styles.label, display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  name="is_featured"
+                  checked={values.is_featured}
+                  onChange={handleChange}
+                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                />
+                Feature this product on the homepage
+              </label>
+            </div>
+            <Field label="Low Stock Warning (units)" htmlFor="low_stock_threshold">
+              <input
+                id="low_stock_threshold"
+                name="low_stock_threshold"
+                type="number"
+                min="0"
+                step="1"
+                value={values.low_stock_threshold}
+                onChange={handleChange}
+                style={fieldInputStyle(false)}
+                placeholder="e.g. 5"
+              />
+            </Field>
+          </div>
 
           {/* Media */}
           <div style={styles.fieldGroup}>
