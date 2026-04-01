@@ -1,4 +1,5 @@
 import type { CartItem, Product } from '../types';
+import { supabase } from '../lib/supabaseClient';
 
 const WHATSAPP_NUMBER = '254793636022';
 const BASE_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
@@ -10,6 +11,38 @@ function generateRef(): string {
   const dd = String(now.getDate()).padStart(2, '0');
   const rand = Math.floor(Math.random() * 9000) + 1000;
   return `ORD-${yy}${mm}${dd}-${rand}`;
+}
+
+async function saveOrder(
+  reference: string,
+  items: Array<{ product_id: string | null; product_name: string; product_category: string; unit_price: number; quantity: number; price_type: string }>,
+  total: number,
+  channel: 'whatsapp' | 'mpesa' | 'card' | 'cash' = 'whatsapp'
+): Promise<void> {
+  try {
+    const { data: order, error } = await supabase
+      .from('orders')
+      .insert({ reference, subtotal: total, total, channel, status: 'pending', payment_status: 'unpaid' })
+      .select('id')
+      .single();
+
+    if (error || !order) return;
+
+    const lineItems = items.map((item) => ({
+      order_id: order.id,
+      product_id: item.product_id,
+      product_name: item.product_name,
+      product_category: item.product_category,
+      unit_price: item.unit_price,
+      quantity: item.quantity,
+      line_total: item.unit_price * item.quantity,
+      price_type: item.price_type,
+    }));
+
+    await supabase.from('order_items').insert(lineItems);
+  } catch {
+    // Non-blocking — order still goes through WhatsApp even if DB save fails
+  }
 }
 
 export function getEffectivePrice(product: Product): number {
@@ -34,7 +67,8 @@ function priceLabel(product: Product): string {
 /**
  * Single product "Order Now" message.
  */
-export function buildSingleProductUrl(product: Product, quantity = 1): string {
+export async function buildSingleProductUrl(product: Product, quantity = 1): Promise<string> {
+  const ref = generateRef();
   const isRange =
     product.price_max != null &&
     product.discounted_price == null &&
@@ -42,23 +76,34 @@ export function buildSingleProductUrl(product: Product, quantity = 1): string {
 
   let itemLine: string;
   let totalLine: string;
+  let total: number;
 
   if (isRange) {
     const min = product.original_price.toLocaleString();
     const max = product.price_max!.toLocaleString();
     itemLine = `- ${product.name} x${quantity} — KES ${min} – KES ${max}`;
     totalLine = `Total: KES ${min} – KES ${max}`;
+    total = product.original_price * quantity;
   } else {
     const price = getEffectivePrice(product);
-    const total = price * quantity;
+    total = price * quantity;
     const label = priceLabel(product);
     itemLine = `- ${product.name} x${quantity} — KES ${total.toLocaleString()}${label}`;
     totalLine = `Total: KES ${total.toLocaleString()}`;
   }
 
+  await saveOrder(ref, [{
+    product_id: product.id,
+    product_name: product.name,
+    product_category: product.category,
+    unit_price: getEffectivePrice(product),
+    quantity,
+    price_type: product.offer_price != null ? 'offer' : product.discounted_price != null ? 'discounted' : 'regular',
+  }], total);
+
   const message =
     `Hi Medtech Solutions, I'd like to order:\n\n` +
-    `Ref: ${generateRef()}\n\n` +
+    `Ref: ${ref}\n\n` +
     `Items:\n` +
     `${itemLine}\n\n` +
     `${totalLine}\n\n` +
@@ -75,7 +120,8 @@ const PRICE_TYPE_LABEL: Record<CartItem['price_type'], string> = {
 /**
  * Cart checkout message.
  */
-export function buildCartCheckoutUrl(items: CartItem[]): string {
+export async function buildCartCheckoutUrl(items: CartItem[]): Promise<string> {
+  const ref = generateRef();
   let rangeMin = 0;
   let rangeMax = 0;
   let fixedTotal = 0;
@@ -95,13 +141,23 @@ export function buildCartCheckoutUrl(items: CartItem[]): string {
   });
 
   const hasRange = rangeMin > 0;
+  const total = fixedTotal + rangeMin;
   const totalLine = hasRange
     ? `Total: KES ${(fixedTotal + rangeMin).toLocaleString()} – KES ${(fixedTotal + rangeMax).toLocaleString()}`
     : `Total: KES ${fixedTotal.toLocaleString()}`;
 
+  await saveOrder(ref, items.map((item) => ({
+    product_id: item.product_id,
+    product_name: item.name,
+    product_category: '',
+    unit_price: item.effective_price,
+    quantity: item.quantity,
+    price_type: item.price_type,
+  })), total);
+
   const message =
     `Hi Medtech Solutions, I'd like to order:\n\n` +
-    `Ref: ${generateRef()}\n\n` +
+    `Ref: ${ref}\n\n` +
     `Items:\n` +
     `${lines.join('\n')}\n\n` +
     `${totalLine}\n\n` +

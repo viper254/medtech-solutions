@@ -158,7 +158,9 @@ function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
     : (product.discounted_price ?? product.original_price);
 
   function handleOrderNow() {
-    window.open(buildSingleProductUrl(product!, qty), '_blank', 'noopener,noreferrer');
+    buildSingleProductUrl(product!, qty).then((url) =>
+      window.open(url, '_blank', 'noopener,noreferrer')
+    );
   }
 
   return (

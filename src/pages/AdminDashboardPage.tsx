@@ -89,6 +89,9 @@ export default function AdminDashboardPage() {
             <Link to="/admin/repairs" style={styles.repairsBtn}>
               Repair Services
             </Link>
+            <Link to="/admin/orders" style={styles.repairsBtn}>
+              Orders
+            </Link>
             {isSuperAdmin && (
               <Link to="/admin/manage" style={styles.repairsBtn}>
                 Manage Admins

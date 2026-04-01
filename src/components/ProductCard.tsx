@@ -121,7 +121,9 @@ export default function ProductCard({ product, onAddToCart, view = 'grid' }: Pro
   }
 
   function handleOrderNow() {
-    window.open(buildSingleProductUrl(product, 1), '_blank', 'noopener,noreferrer');
+    buildSingleProductUrl(product, 1).then((url) =>
+      window.open(url, '_blank', 'noopener,noreferrer')
+    );
   }
 
   const isList = view === 'list';

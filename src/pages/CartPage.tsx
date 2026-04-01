@@ -25,7 +25,9 @@ export default function CartPage({ cart, dispatch }: CartPageProps) {
 
   function handleCheckout() {
     if (cart.length === 0) return;
-    window.open(buildCartCheckoutUrl(cart), '_blank', 'noopener,noreferrer');
+    buildCartCheckoutUrl(cart).then((url) =>
+      window.open(url, '_blank', 'noopener,noreferrer')
+    );
   }
 
   if (cart.length === 0) {

@@ -34,9 +34,47 @@ export interface RepairService {
 export interface CartItem {
   product_id: string;
   name: string;
-  effective_price: number; // price snapshotted at add-time
-  price_type: 'offer' | 'discounted' | 'regular'; // what kind of price was applied
-  price_max: number | null; // set only for range-priced products
+  effective_price: number;
+  price_type: 'offer' | 'discounted' | 'regular';
+  price_max: number | null;
   quantity: number;
   thumbnail_url: string;
+}
+
+export type OrderStatus = 'pending' | 'confirmed' | 'dispatched' | 'delivered' | 'cancelled';
+export type PaymentStatus = 'unpaid' | 'partial' | 'paid' | 'refunded';
+export type OrderChannel = 'whatsapp' | 'mpesa' | 'card' | 'cash';
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string | null;
+  product_name: string;
+  product_category: string;
+  unit_price: number;
+  quantity: number;
+  line_total: number;
+  price_type: 'offer' | 'discounted' | 'regular';
+}
+
+export interface Order {
+  id: string;
+  reference: string;
+  customer_name: string | null;
+  customer_phone: string | null;
+  customer_email: string | null;
+  delivery_address: string | null;
+  subtotal: number;
+  delivery_fee: number;
+  total: number;
+  status: OrderStatus;
+  channel: OrderChannel;
+  payment_status: PaymentStatus;
+  payment_method: string | null;
+  payment_ref: string | null;
+  paid_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  items?: OrderItem[];
 }
