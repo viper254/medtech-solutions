@@ -88,3 +88,12 @@ export interface ProductReview {
   is_approved: boolean;
   created_at: string;
 }
+
+export interface CustomerProfile {
+  user_id: string;
+  full_name: string | null;
+  phone: string | null;
+  created_at: string;
+  updated_at: string;
+  email?: string; // from auth.users, joined client-side
+}

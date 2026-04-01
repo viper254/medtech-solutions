@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logoSrc from '../assets/logo.jpeg';
+import { useCustomerAuth } from '../store/customerAuth';
 import './Navbar.css';
 
 const CATEGORIES = ['Phones', 'Laptops', 'Desktops', 'Accessories', 'Medical Equipment'] as const;
@@ -19,6 +20,7 @@ export default function Navbar({ cartItemCount = 0 }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { user } = useCustomerAuth();
 
   function handleSearch(e: FormEvent) {
     e.preventDefault();
@@ -69,6 +71,12 @@ export default function Navbar({ cartItemCount = 0 }: NavbarProps) {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </button>
         </form>
+
+        {/* Account icon */}
+        <Link to={user ? '/account' : '/account/login'} style={styles.cartLink} aria-label={user ? 'My account' : 'Sign in'}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          {user && <span style={styles.accountDot} aria-hidden="true" />}
+        </Link>
 
         {/* Cart icon */}
         <Link to="/cart" style={styles.cartLink} aria-label={`Cart, ${cartItemCount} items`}>
@@ -241,6 +249,16 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '0 3px',
+  },
+  accountDot: {
+    position: 'absolute',
+    top: '-2px',
+    right: '-2px',
+    width: '8px',
+    height: '8px',
+    borderRadius: '50%',
+    backgroundColor: '#25d366',
+    border: '2px solid rgba(15,31,61,0.85)',
   },
   hamburger: {
     display: 'none',

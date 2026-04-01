@@ -1,8 +1,10 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import type { Product } from './types';
+import { createContext, useContext, useReducer, useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import type { User } from '@supabase/supabase-js';
+import type { Product, CustomerProfile } from './types';
 import type { CartState, CartAction } from './store/cartReducer';
 import { cartReducer, loadCartFromStorage, saveCartToStorage } from './store/cartReducer';
+import { CustomerAuthContext } from './store/customerAuth';
 
 import Navbar from './components/Navbar';
 import WhatsAppFAB from './components/WhatsAppFAB';
@@ -22,7 +24,10 @@ import AdminProductFormPage from './pages/AdminProductFormPage';
 import AdminRepairServicesPage from './pages/AdminRepairServicesPage';
 import AdminManagePage from './pages/AdminManagePage';
 import AdminOrdersPage from './pages/AdminOrdersPage';
+import AdminReviewsPage from './pages/AdminReviewsPage';
 import OrderTrackingPage from './pages/OrderTrackingPage';
+import CustomerAuthPage from './pages/CustomerAuthPage';
+import AccountPage from './pages/AccountPage';
 import AdminReviewsPage from './pages/AdminReviewsPage';
 
 // ── Cart Context ───────────────────────────────────────────────────────────────
@@ -44,6 +49,40 @@ export function useCart(): CartContextValue {
 
 export default function App() {
   const [cart, dispatch] = useReducer(cartReducer, undefined, loadCartFromStorage);
+
+  // Customer auth state
+  const [customerUser, setCustomerUser] = useState<User | null>(null);
+  const [customerProfile, setCustomerProfile] = useState<CustomerProfile | null>(null);
+  const [customerLoading, setCustomerLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const u = session?.user ?? null;
+      setCustomerUser(u);
+      if (u) await loadCustomerProfile(u.id);
+      setCustomerLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const u = session?.user ?? null;
+      setCustomerUser(u);
+      if (u) await loadCustomerProfile(u.id);
+      else setCustomerProfile(null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function loadCustomerProfile(userId: string) {
+    const { data } = await supabase.from('customer_profiles').select('*').eq('user_id', userId).single();
+    if (data) setCustomerProfile({ ...(data as CustomerProfile), email: customerUser?.email });
+  }
+
+  async function customerSignOut() {
+    await supabase.auth.signOut();
+    setCustomerUser(null);
+    setCustomerProfile(null);
+  }
 
   // Persist cart to localStorage on every change
   useEffect(() => {
@@ -78,6 +117,13 @@ export default function App() {
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
+    <CustomerAuthContext.Provider value={{
+      user: customerUser,
+      profile: customerProfile,
+      loading: customerLoading,
+      signOut: customerSignOut,
+      refreshProfile: () => customerUser ? loadCustomerProfile(customerUser.id) : Promise.resolve(),
+    }}>
     <CartContext.Provider value={{ cart, dispatch }}>
       <BrowserRouter>
         <Navbar cartItemCount={cartItemCount} />
@@ -93,6 +139,8 @@ export default function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/delivery" element={<DeliveryInfoPage />} />
           <Route path="/track" element={<OrderTrackingPage />} />
+          <Route path="/account/login" element={<CustomerAuthPage />} />
+          <Route path="/account" element={<AccountPage />} />
 
           {/* Admin — login is public, dashboard/form are protected */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -144,6 +192,7 @@ export default function App() {
         <WhatsAppFAB />
       </BrowserRouter>
     </CartContext.Provider>
+    </CustomerAuthContext.Provider>
   );
 }
 

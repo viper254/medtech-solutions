@@ -20,9 +20,12 @@ async function saveOrder(
   channel: 'whatsapp' | 'mpesa' | 'card' | 'cash' = 'whatsapp'
 ): Promise<void> {
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const customerId = session?.user?.id ?? null;
+
     const { data: order, error } = await supabase
       .from('orders')
-      .insert({ reference, subtotal: total, total, channel, status: 'pending', payment_status: 'unpaid' })
+      .insert({ reference, subtotal: total, total, channel, status: 'pending', payment_status: 'unpaid', customer_id: customerId })
       .select('id')
       .single();
 
