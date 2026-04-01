@@ -74,16 +74,16 @@ export default function App() {
   }, []);
 
   function loadCustomerProfile(userId: string) {
-    supabase
-      .from('customer_profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle()
-      .then(({ data }) => {
-        setCustomerProfile(data ? { ...(data as CustomerProfile) } : null);
-        setCustomerLoading(false);
-      })
-      .catch(() => setCustomerLoading(false));
+    Promise.resolve(
+      supabase
+        .from('customer_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle()
+    ).then(({ data }) => {
+      setCustomerProfile(data ? { ...(data as CustomerProfile) } : null);
+      setCustomerLoading(false);
+    }).catch(() => setCustomerLoading(false));
   }
 
   async function customerSignOut() {
