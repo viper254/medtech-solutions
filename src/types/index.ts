@@ -9,7 +9,7 @@ export interface MediaItem {
 export interface Product {
   id: string;
   name: string;
-  category: 'Phones' | 'Laptops' | 'Desktops' | 'Accessories' | 'Medical Equipment';
+  category: 'Phones' | 'Laptops' | 'Desktops' | 'Accessories' | 'Medical Equipment' | 'Others';
   description: string;
   original_price: number;
   discounted_price: number | null;

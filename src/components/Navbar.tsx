@@ -4,7 +4,7 @@ import logoSrc from '../assets/logo.jpeg';
 import { useCustomerAuth } from '../store/customerAuth';
 import './Navbar.css';
 
-const CATEGORIES = ['Phones', 'Laptops', 'Desktops', 'Accessories', 'Medical Equipment'] as const;
+const CATEGORIES = ['Phones', 'Laptops', 'Desktops', 'Accessories', 'Medical Equipment', 'Others'] as const;
 
 const NAV_LINKS = [
   { label: 'Repairs', to: '/repair' },

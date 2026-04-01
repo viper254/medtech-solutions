@@ -177,6 +177,7 @@ export default function App() {
               <Link to="/catalog?category=Desktops" style={footerStyles.link}>Desktops</Link>
               <Link to="/catalog?category=Accessories" style={footerStyles.link}>Accessories</Link>
               <Link to="/catalog?category=Medical Equipment" style={footerStyles.link}>Medical Equipment</Link>
+              <Link to="/catalog?category=Others" style={footerStyles.link}>Others</Link>
             </div>
             <div style={footerStyles.col}>
               <p style={footerStyles.colHeading}>Info</p>
