@@ -121,6 +121,8 @@ const productArb = fc
     offer_price: fc.option(fc.integer({ min: 1, max: 999_999 }), { nil: null }),
     offer_expires_at: fc.option(fc.constant('2099-01-01T00:00:00Z'), { nil: null }),
     stock_quantity: fc.nat({ max: 9999 }),
+    is_featured: fc.boolean(),
+    low_stock_threshold: fc.integer({ min: 1, max: 20 }),
     media: fc.constant([] as import('../types').MediaItem[]),
     created_at: fc.constant('2024-01-01T00:00:00Z'),
     updated_at: fc.constant('2024-01-01T00:00:00Z'),

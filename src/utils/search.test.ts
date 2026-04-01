@@ -10,6 +10,8 @@ const makeProduct = (overrides: Partial<Product> & { id: string; name: string; d
   offer_price: null,
   offer_expires_at: null,
   stock_quantity: 10,
+  is_featured: false,
+  low_stock_threshold: 5,
   media: [],
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',

@@ -35,6 +35,8 @@ const productArb: fc.Arbitrary<Product> = fc.record({
   offer_price: fc.option(fc.integer({ min: 1, max: 100_000 }), { nil: null }),
   offer_expires_at: fc.option(fc.constant('2099-01-01T00:00:00Z'), { nil: null }),
   stock_quantity: fc.nat({ max: 1000 }),
+  is_featured: fc.boolean(),
+  low_stock_threshold: fc.integer({ min: 1, max: 20 }),
   media: fc.constant([]),
   created_at: fc.constant('2024-01-01T00:00:00Z'),
   updated_at: fc.constant('2024-01-01T00:00:00Z'),
