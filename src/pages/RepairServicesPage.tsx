@@ -43,7 +43,7 @@ export default function RepairServicesPage() {
         setError('Failed to load repair services. Please try again.');
       } else {
         const mapped = (data ?? []).map((s: Record<string, unknown>) => ({
-          ...(s as RepairService),
+          ...(s as unknown as RepairService),
           media: mapRepairMedia((s.media as Array<Record<string, unknown>>) ?? []),
         }));
         setServices(mapped);

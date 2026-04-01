@@ -55,7 +55,7 @@ export default function AdminRepairServicesPage() {
       setToast({ type: 'error', message: 'Failed to load services.' });
     } else {
       const mapped = (data ?? []).map((s: Record<string, unknown>) => ({
-        ...(s as RepairService),
+        ...(s as unknown as RepairService),
         media: mapRepairMedia((s.media as Array<Record<string, unknown>>) ?? []),
       }));
       setServices(mapped);
