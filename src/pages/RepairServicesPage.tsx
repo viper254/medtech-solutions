@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { mapRepairMedia } from '../lib/supabaseClient';
 import { RepairService } from '../types';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -35,13 +36,17 @@ export default function RepairServicesPage() {
       setError(null);
       const { data, error: fetchError } = await supabase
         .from('repair_services')
-        .select('*')
+        .select('*, media:repair_service_media(*)')
         .order('name', { ascending: true });
       if (cancelled) return;
       if (fetchError) {
         setError('Failed to load repair services. Please try again.');
       } else {
-        setServices((data as RepairService[]) ?? []);
+        const mapped = (data ?? []).map((s: Record<string, unknown>) => ({
+          ...(s as RepairService),
+          media: mapRepairMedia((s.media as Array<Record<string, unknown>>) ?? []),
+        }));
+        setServices(mapped);
       }
       setLoading(false);
     }
@@ -71,7 +76,16 @@ export default function RepairServicesPage() {
           <div style={styles.grid}>
             {services.map((service) => (
               <div key={service.id} style={styles.card}>
-                <div style={styles.cardIcon}><WrenchIcon /></div>
+                {service.media && service.media.length > 0 ? (
+                  <img
+                    src={service.media[0].url}
+                    alt={service.name}
+                    style={styles.cardImage}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div style={styles.cardIcon}><WrenchIcon /></div>
+                )}
                 <h2 style={styles.serviceName}>{service.name}</h2>
                 <p style={styles.description}>{service.description}</p>
                 <div style={styles.turnaround}>
@@ -127,6 +141,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '0.5rem',
   },
   cardIcon: { color: '#1d6fa4', marginBottom: '0.25rem' },
+  cardImage: { width: '100%', height: '160px', objectFit: 'cover' as const, borderRadius: '6px', marginBottom: '0.25rem' },
   serviceName: { fontSize: '1.05rem', fontWeight: 700, color: '#0f1f3d', margin: 0 },
   description: { color: '#5a6a80', fontSize: '0.9rem', lineHeight: 1.55, margin: 0, flex: 1 },
   turnaround: {

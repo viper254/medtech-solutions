@@ -1,7 +1,8 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { mapRepairMedia } from '../lib/supabaseClient';
 import LoadingSpinner from '../components/LoadingSpinner';
-import type { RepairService } from '../types';
+import type { RepairService, RepairMediaItem } from '../types';
 
 type Toast = { type: 'success' | 'error'; message: string };
 
@@ -9,6 +10,12 @@ interface FormState {
   name: string;
   description: string;
   estimated_turnaround: string;
+}
+
+interface NewFile {
+  file: File;
+  previewUrl: string;
+  type: 'image' | 'video';
 }
 
 const EMPTY: FormState = { name: '', description: '', estimated_turnaround: '' };
@@ -19,8 +26,12 @@ export default function AdminRepairServicesPage() {
   const [toast, setToast] = useState<Toast | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [existingMedia, setExistingMedia] = useState<RepairMediaItem[]>([]);
+  const [removedMediaIds, setRemovedMediaIds] = useState<string[]>([]);
+  const [newFiles, setNewFiles] = useState<NewFile[]>([]);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { fetchServices(); }, []);
 
@@ -30,13 +41,24 @@ export default function AdminRepairServicesPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
+  useEffect(() => {
+    return () => { newFiles.forEach((f) => URL.revokeObjectURL(f.previewUrl)); };
+  }, [newFiles]);
+
   async function fetchServices() {
     setLoading(true);
-    const { data, error } = await supabase.from('repair_services').select('*').order('name');
+    const { data, error } = await supabase
+      .from('repair_services')
+      .select('*, media:repair_service_media(*)')
+      .order('name');
     if (error) {
       setToast({ type: 'error', message: 'Failed to load services.' });
     } else {
-      setServices((data as RepairService[]) ?? []);
+      const mapped = (data ?? []).map((s: Record<string, unknown>) => ({
+        ...(s as RepairService),
+        media: mapRepairMedia((s.media as Array<Record<string, unknown>>) ?? []),
+      }));
+      setServices(mapped);
     }
     setLoading(false);
   }
@@ -44,13 +66,43 @@ export default function AdminRepairServicesPage() {
   function startEdit(service: RepairService) {
     setEditingId(service.id);
     setForm({ name: service.name, description: service.description, estimated_turnaround: service.estimated_turnaround });
+    setExistingMedia(service.media ?? []);
+    setRemovedMediaIds([]);
+    setNewFiles([]);
     setFormError(null);
   }
 
   function cancelEdit() {
     setEditingId(null);
     setForm(EMPTY);
+    setExistingMedia([]);
+    setRemovedMediaIds([]);
+    setNewFiles([]);
     setFormError(null);
+  }
+
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const mapped: NewFile[] = files.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      type: file.type.startsWith('video/') ? 'video' : 'image',
+    }));
+    setNewFiles((prev) => [...prev, ...mapped]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  function removeNewFile(i: number) {
+    setNewFiles((prev) => {
+      URL.revokeObjectURL(prev[i].previewUrl);
+      return prev.filter((_, idx) => idx !== i);
+    });
+  }
+
+  function removeExistingMedia(id: string) {
+    setExistingMedia((prev) => prev.filter((m) => m.id !== id));
+    setRemovedMediaIds((prev) => [...prev, id]);
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -61,27 +113,67 @@ export default function AdminRepairServicesPage() {
       return;
     }
     setSaving(true);
-    const payload = { name: form.name.trim(), description: form.description.trim(), estimated_turnaround: form.estimated_turnaround.trim() };
-    if (editingId) {
-      const { error } = await supabase.from('repair_services').update(payload).eq('id', editingId);
-      if (error) {
-        setToast({ type: 'error', message: 'Failed to update service.' });
+
+    try {
+      const payload = {
+        name: form.name.trim(),
+        description: form.description.trim(),
+        estimated_turnaround: form.estimated_turnaround.trim(),
+      };
+
+      let serviceId = editingId;
+
+      if (editingId) {
+        const { error } = await supabase.from('repair_services').update(payload).eq('id', editingId);
+        if (error) throw new Error(error.message);
       } else {
-        setToast({ type: 'success', message: 'Service updated.' });
-        cancelEdit();
-        fetchServices();
+        const { data, error } = await supabase.from('repair_services').insert(payload).select('id').single();
+        if (error || !data) throw new Error(error?.message ?? 'Failed to create service.');
+        serviceId = (data as { id: string }).id;
       }
-    } else {
-      const { error } = await supabase.from('repair_services').insert(payload);
-      if (error) {
-        setToast({ type: 'error', message: 'Failed to add service.' });
-      } else {
-        setToast({ type: 'success', message: 'Service added.' });
-        setForm(EMPTY);
-        fetchServices();
+
+      // Delete removed media
+      if (removedMediaIds.length > 0) {
+        const { data: removedRows } = await supabase
+          .from('repair_service_media')
+          .select('storage_path')
+          .in('id', removedMediaIds);
+        await supabase.from('repair_service_media').delete().in('id', removedMediaIds);
+        if (removedRows?.length) {
+          await supabase.storage.from('product-media').remove(
+            (removedRows as { storage_path: string }[]).map((r) => r.storage_path)
+          );
+        }
       }
+
+      // Upload new files
+      if (newFiles.length > 0 && serviceId) {
+        const nextSort = existingMedia.length;
+        for (let i = 0; i < newFiles.length; i++) {
+          const { file, type } = newFiles[i];
+          const ext = file.name.split('.').pop() ?? 'bin';
+          const storagePath = `repairs/${serviceId}/${Date.now()}-${i}.${ext}`;
+          const { error: uploadErr } = await supabase.storage
+            .from('product-media')
+            .upload(storagePath, file, { upsert: false });
+          if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
+          await supabase.from('repair_service_media').insert({
+            service_id: serviceId,
+            storage_path: storagePath,
+            type,
+            sort_order: nextSort + i,
+          });
+        }
+      }
+
+      setToast({ type: 'success', message: editingId ? 'Service updated.' : 'Service added.' });
+      cancelEdit();
+      fetchServices();
+    } catch (err) {
+      setToast({ type: 'error', message: err instanceof Error ? err.message : 'Failed to save.' });
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   async function handleDelete(service: RepairService) {
@@ -122,6 +214,53 @@ export default function AdminRepairServicesPage() {
               <label htmlFor="svc-turnaround" style={styles.label}>Estimated Turnaround</label>
               <input id="svc-turnaround" style={styles.input} value={form.estimated_turnaround} onChange={(e) => setForm((p) => ({ ...p, estimated_turnaround: e.target.value }))} placeholder="e.g. 1–2 hours" />
             </div>
+
+            {/* Media */}
+            <div style={styles.field}>
+              <label style={styles.label}>Photos / Videos (optional)</label>
+
+              {existingMedia.length > 0 && (
+                <div style={styles.mediaGrid}>
+                  {existingMedia.map((m) => (
+                    <div key={m.id} style={styles.mediaTile}>
+                      {m.type === 'image'
+                        ? <img src={m.url} alt="Service media" style={styles.mediaTileImg} loading="lazy" />
+                        : <video src={m.url} style={styles.mediaTileImg} muted />
+                      }
+                      <button type="button" onClick={() => removeExistingMedia(m.id)} style={styles.removeTileBtn} aria-label="Remove">✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {newFiles.length > 0 && (
+                <div style={styles.mediaGrid}>
+                  {newFiles.map((f, i) => (
+                    <div key={i} style={styles.mediaTile}>
+                      {f.type === 'image'
+                        ? <img src={f.previewUrl} alt={`New ${i + 1}`} style={styles.mediaTileImg} />
+                        : <video src={f.previewUrl} style={styles.mediaTileImg} muted />
+                      }
+                      <button type="button" onClick={() => removeNewFile(i)} style={styles.removeTileBtn} aria-label="Remove">✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <label htmlFor="repair-media-upload" style={styles.uploadLabel}>
+                + Add photos/videos
+                <input
+                  id="repair-media-upload"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+            </div>
+
             {formError && <p role="alert" style={styles.formError}>{formError}</p>}
             <div style={styles.formActions}>
               {editingId && (
@@ -141,10 +280,16 @@ export default function AdminRepairServicesPage() {
           <div style={styles.list}>
             {services.map((s) => (
               <div key={s.id} style={styles.serviceRow}>
+                {s.media && s.media.length > 0 && (
+                  <img src={s.media[0].url} alt={s.name} style={styles.serviceThumb} loading="lazy" />
+                )}
                 <div style={styles.serviceInfo}>
                   <p style={styles.serviceName}>{s.name}</p>
                   <p style={styles.serviceDesc}>{s.description}</p>
                   <p style={styles.serviceTurnaround}>{s.estimated_turnaround}</p>
+                  {s.media && s.media.length > 0 && (
+                    <p style={styles.mediaCount}>{s.media.length} media file{s.media.length !== 1 ? 's' : ''}</p>
+                  )}
                 </div>
                 <div style={styles.serviceActions}>
                   <button onClick={() => startEdit(s)} style={styles.editBtn}>Edit</button>
@@ -172,17 +317,24 @@ const styles: Record<string, React.CSSProperties> = {
   field: { display: 'flex', flexDirection: 'column' as const, gap: '0.35rem' },
   label: { fontSize: '0.875rem', fontWeight: 600, color: '#2d3748' },
   input: { padding: '0.55rem 0.75rem', fontSize: '0.9rem', border: '1px solid #dde3ec', borderRadius: '6px', color: '#2d3748', width: '100%', boxSizing: 'border-box' as const, outline: 'none', fontFamily: 'inherit' },
+  mediaGrid: { display: 'flex', flexWrap: 'wrap' as const, gap: '0.75rem', marginBottom: '0.5rem' },
+  mediaTile: { position: 'relative' as const, width: '100px', height: '100px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e2e8f0' },
+  mediaTileImg: { width: '100%', height: '100%', objectFit: 'cover' as const },
+  removeTileBtn: { position: 'absolute' as const, top: '3px', right: '3px', width: '20px', height: '20px', borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.55)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '0.65rem', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  uploadLabel: { display: 'inline-block', padding: '0.5rem 1rem', backgroundColor: '#e8f2fa', border: '1px dashed #1d6fa4', borderRadius: '6px', cursor: 'pointer', fontSize: '0.9rem', color: '#1d6fa4', fontWeight: 600, alignSelf: 'flex-start' as const },
   formError: { color: '#b91c1c', fontSize: '0.82rem', margin: 0 },
   formActions: { display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' },
   cancelBtn: { padding: '0.55rem 1.1rem', backgroundColor: '#fff', color: '#4a5568', border: '1px solid #dde3ec', borderRadius: '6px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' },
   saveBtn: { padding: '0.55rem 1.25rem', backgroundColor: '#1d6fa4', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer' },
   empty: { textAlign: 'center', color: '#5a6a80', padding: '2rem 0' },
   list: { display: 'flex', flexDirection: 'column' as const, gap: '0.75rem' },
-  serviceRow: { backgroundColor: '#fff', border: '1px solid #dde3ec', borderRadius: '8px', padding: '1rem 1.25rem', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  serviceRow: { backgroundColor: '#fff', border: '1px solid #dde3ec', borderRadius: '8px', padding: '1rem 1.25rem', display: 'flex', alignItems: 'flex-start', gap: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+  serviceThumb: { width: '72px', height: '72px', objectFit: 'cover' as const, borderRadius: '6px', flexShrink: 0 },
   serviceInfo: { flex: 1, minWidth: 0 },
   serviceName: { fontWeight: 700, color: '#0f1f3d', margin: '0 0 0.25rem', fontSize: '0.95rem' },
   serviceDesc: { color: '#5a6a80', fontSize: '0.85rem', margin: '0 0 0.25rem', lineHeight: 1.4 },
   serviceTurnaround: { color: '#1d6fa4', fontSize: '0.8rem', fontWeight: 600, margin: 0 },
+  mediaCount: { fontSize: '0.75rem', color: '#5a6a80', margin: '0.25rem 0 0' },
   serviceActions: { display: 'flex', gap: '0.5rem', flexShrink: 0 },
   editBtn: { padding: '0.35rem 0.8rem', backgroundColor: '#1d6fa4', color: '#fff', border: 'none', borderRadius: '5px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer' },
   deleteBtn: { padding: '0.35rem 0.8rem', backgroundColor: '#fff', color: '#b91c1c', border: '1px solid #fca5a5', borderRadius: '5px', fontWeight: 600, fontSize: '0.82rem', cursor: 'pointer' },

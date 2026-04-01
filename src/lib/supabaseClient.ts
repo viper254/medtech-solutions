@@ -17,6 +17,18 @@ export function mapMediaUrls(rawMedia: Array<Record<string, unknown>>): MediaIte
   }))
 }
 
+/** Convert raw repair_service_media rows into objects with public URLs */
+export function mapRepairMedia(rawMedia: Array<Record<string, unknown>>) {
+  return rawMedia.map((m) => ({
+    id: m.id as string,
+    service_id: m.service_id as string,
+    storage_path: m.storage_path as string,
+    url: supabase.storage.from('product-media').getPublicUrl(m.storage_path as string).data.publicUrl,
+    type: m.type as 'image' | 'video',
+    sort_order: m.sort_order as number,
+  }));
+}
+
 /** Attach mapped media URLs to an array of raw product rows */
 export function mapProducts(rawProducts: Array<Record<string, unknown>>): Product[] {
   return rawProducts.map((p) => ({

@@ -29,6 +29,16 @@ export interface RepairService {
   name: string;
   description: string;
   estimated_turnaround: string;
+  media?: RepairMediaItem[];
+}
+
+export interface RepairMediaItem {
+  id: string;
+  service_id: string;
+  url: string;
+  storage_path: string;
+  type: 'image' | 'video';
+  sort_order: number;
 }
 
 export interface CartItem {
