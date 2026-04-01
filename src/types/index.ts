@@ -78,3 +78,13 @@ export interface Order {
   updated_at: string;
   items?: OrderItem[];
 }
+
+export interface ProductReview {
+  id: string;
+  product_id: string;
+  reviewer_name: string;
+  rating: number;
+  comment: string | null;
+  is_approved: boolean;
+  created_at: string;
+}

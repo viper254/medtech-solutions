@@ -8,6 +8,7 @@ import ProductCard from '../components/ProductCard';
 import { buildSingleProductUrl } from '../utils/whatsapp';
 import DeliveryStrip from '../components/DeliveryStrip';
 import { usePageTitle } from '../utils/usePageTitle';
+import ProductReviews from '../components/ProductReviews';
 
 interface ProductDetailPageProps {
   onAddToCart: (product: Product, quantity: number) => void;
@@ -260,6 +261,9 @@ function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
           </div>
         </section>
       )}
+
+      {/* Reviews */}
+      <ProductReviews productId={product.id} productName={product.name} />
     </main>
   );
 }

@@ -22,6 +22,8 @@ import AdminProductFormPage from './pages/AdminProductFormPage';
 import AdminRepairServicesPage from './pages/AdminRepairServicesPage';
 import AdminManagePage from './pages/AdminManagePage';
 import AdminOrdersPage from './pages/AdminOrdersPage';
+import OrderTrackingPage from './pages/OrderTrackingPage';
+import AdminReviewsPage from './pages/AdminReviewsPage';
 
 // ── Cart Context ───────────────────────────────────────────────────────────────
 
@@ -90,6 +92,7 @@ export default function App() {
           <Route path="/repair" element={<RepairServicesPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/delivery" element={<DeliveryInfoPage />} />
+          <Route path="/track" element={<OrderTrackingPage />} />
 
           {/* Admin — login is public, dashboard/form are protected */}
           <Route path="/admin/login" element={<AdminLoginPage />} />
@@ -100,6 +103,7 @@ export default function App() {
             <Route path="/admin/repairs" element={<AdminRepairServicesPage />} />
             <Route path="/admin/manage" element={<AdminManagePage />} />
             <Route path="/admin/orders" element={<AdminOrdersPage />} />
+            <Route path="/admin/reviews" element={<AdminReviewsPage />} />
           </Route>
         </Routes>
 
@@ -122,6 +126,7 @@ export default function App() {
               <p style={footerStyles.colHeading}>Info</p>
               <Link to="/repair" style={footerStyles.link}>Repair Services</Link>
               <Link to="/delivery" style={footerStyles.link}>Delivery &amp; Payment</Link>
+              <Link to="/track" style={footerStyles.link}>Track Order</Link>
               <Link to="/contact" style={footerStyles.link}>Contact Us</Link>
               <Link to="/cart" style={footerStyles.link}>My Cart</Link>
             </div>
