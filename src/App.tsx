@@ -1,10 +1,11 @@
 import { createContext, useContext, useReducer, useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import type { User } from '@supabase/supabase-js';
 import type { Product, CustomerProfile } from './types';
 import type { CartState, CartAction } from './store/cartReducer';
 import { cartReducer, loadCartFromStorage, saveCartToStorage } from './store/cartReducer';
 import { CustomerAuthContext } from './store/customerAuth';
+import { supabase } from './lib/supabaseClient';
 
 import Navbar from './components/Navbar';
 import WhatsAppFAB from './components/WhatsAppFAB';
@@ -28,7 +29,6 @@ import AdminReviewsPage from './pages/AdminReviewsPage';
 import OrderTrackingPage from './pages/OrderTrackingPage';
 import CustomerAuthPage from './pages/CustomerAuthPage';
 import AccountPage from './pages/AccountPage';
-import AdminReviewsPage from './pages/AdminReviewsPage';
 
 // ── Cart Context ───────────────────────────────────────────────────────────────
 
