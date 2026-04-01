@@ -56,26 +56,34 @@ export default function App() {
   const [customerLoading, setCustomerLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       const u = session?.user ?? null;
       setCustomerUser(u);
-      if (u) await loadCustomerProfile(u.id);
-      setCustomerLoading(false);
+      if (u) loadCustomerProfile(u.id);
+      else setCustomerLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const u = session?.user ?? null;
       setCustomerUser(u);
-      if (u) await loadCustomerProfile(u.id);
-      else setCustomerProfile(null);
+      if (u) loadCustomerProfile(u.id);
+      else { setCustomerProfile(null); setCustomerLoading(false); }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  async function loadCustomerProfile(userId: string) {
-    const { data } = await supabase.from('customer_profiles').select('*').eq('user_id', userId).single();
-    if (data) setCustomerProfile({ ...(data as CustomerProfile), email: customerUser?.email });
+  function loadCustomerProfile(userId: string) {
+    supabase
+      .from('customer_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setCustomerProfile(data ? { ...(data as CustomerProfile) } : null);
+        setCustomerLoading(false);
+      })
+      .catch(() => setCustomerLoading(false));
   }
 
   async function customerSignOut() {
@@ -122,7 +130,7 @@ export default function App() {
       profile: customerProfile,
       loading: customerLoading,
       signOut: customerSignOut,
-      refreshProfile: () => customerUser ? loadCustomerProfile(customerUser.id) : Promise.resolve(),
+      refreshProfile: () => { if (customerUser) loadCustomerProfile(customerUser.id); return Promise.resolve(); },
     }}>
     <CartContext.Provider value={{ cart, dispatch }}>
       <BrowserRouter>
