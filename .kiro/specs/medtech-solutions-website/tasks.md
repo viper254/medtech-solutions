@@ -2,7 +2,7 @@
 
 ## Overview
 
-Build a React (Vite) SPA in TypeScript, deployed to GitHub Pages via GitHub Actions. Supabase handles the database, storage, and auth. Cart state lives in localStorage. Orders are placed via pre-filled `wa.me` links.
+Build a React (Vite) SPA in TypeScript, deployed to Vercel. Supabase handles the database, storage, and auth. Cart state lives in localStorage. Orders are placed via pre-filled `wa.me` links.
 
 ## Tasks
 
@@ -12,8 +12,7 @@ Build a React (Vite) SPA in TypeScript, deployed to GitHub Pages via GitHub Acti
   - Configure Vitest with jsdom environment and `@testing-library/jest-dom` setup
   - Create `.env.example` with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` placeholders
   - Create `src/lib/supabaseClient.ts` initialising the Supabase client from env vars
-  - Add `404.html` redirect trick for GitHub Pages SPA routing
-  - Add GitHub Actions workflow file `.github/workflows/deploy.yml` for build + deploy to `gh-pages` branch
+  - Add `vercel.json` rewrite rule for SPA routing
   - _Requirements: 8.1_
 
 - [x] 2. TypeScript interfaces and core utility functions
@@ -197,4 +196,4 @@ Build a React (Vite) SPA in TypeScript, deployed to GitHub Pages via GitHub Acti
 - Each task references specific requirements for traceability
 - Property tests use `fast-check` with `{ numRuns: 100 }` and the tag format `// Feature: medtech-solutions-website, Property N: <text>`
 - Supabase CRUD round-trip property tests (9.5) should mock the Supabase client or use a local Supabase instance
-- The `404.html` redirect is required for GitHub Pages to support client-side routing
+- For Vercel, SPA routing uses a rewrite to `index.html` (see `vercel.json`)

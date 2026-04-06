@@ -60,18 +60,6 @@
       "sameAs": ["https://wa.me/254793636022"]
     }
     </script>
-
-    <script>
-      // SPA redirect restore
-      (function () {
-        var redirect = sessionStorage.getItem('spa_redirect');
-        if (redirect) {
-          sessionStorage.removeItem('spa_redirect');
-          var url = redirect.charAt(0) === '/' ? redirect : '/' + redirect;
-          window.history.replaceState(null, null, url);
-        }
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>
