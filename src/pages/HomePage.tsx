@@ -32,6 +32,7 @@ interface HomePageProps {
 
 export default function HomePage({ onAddToCart }: HomePageProps) {
   const [products, setProducts] = useState<Product[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<ViewMode>('grid');
 
@@ -39,14 +40,23 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
     let cancelled = false;
 
     async function fetchProducts() {
-      const { data } = await supabase
-        .from('products')
-        .select('*, media:product_media(*)')
-        .order('created_at', { ascending: false })
-        .limit(40);
+      const [{ data: allData }, { data: featuredData }] = await Promise.all([
+        supabase
+          .from('products')
+          .select('*, media:product_media(*)')
+          .order('created_at', { ascending: false })
+          .limit(40),
+        supabase
+          .from('products')
+          .select('*, media:product_media(*)')
+          .eq('is_featured', true)
+          .order('created_at', { ascending: false })
+          .limit(20),
+      ]);
 
       if (!cancelled) {
-        setProducts(mapProducts((data as Array<Record<string, unknown>>) ?? []));
+        setProducts(mapProducts((allData as Array<Record<string, unknown>>) ?? []));
+        setFeaturedProducts(mapProducts((featuredData as Array<Record<string, unknown>>) ?? []));
         setLoading(false);
       }
     }
@@ -55,7 +65,7 @@ export default function HomePage({ onAddToCart }: HomePageProps) {
     return () => { cancelled = true; };
   }, []);
 
-  const featured = products.filter((p) => p.is_featured && p.stock_quantity > 0);
+  const featured = featuredProducts.filter((p: Product) => p.stock_quantity > 0);
 
   return (
     <main>
