@@ -54,8 +54,10 @@ export function useCart(): CartContextValue {
 export default function App() {
   const [cart, dispatch] = useReducer(cartReducer, undefined, loadCartFromStorage);
   
-  // Site status check
-  const { status: siteStatus, loading: siteLoading } = useSiteStatus();
+  // Site status check - DISABLED until database functions are fixed
+  // const { status: siteStatus, loading: siteLoading } = useSiteStatus();
+  const siteStatus = { is_active: true, customer_message: '', admin_message: '', days_until_due: 999, is_overdue: false };
+  const siteLoading = false;
 
   // Customer auth state
   const [customerUser, setCustomerUser] = useState<User | null>(null);
