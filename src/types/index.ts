@@ -44,6 +44,7 @@ export interface RepairMediaItem {
 export interface CartItem {
   product_id: string;
   name: string;
+  category?: string;
   effective_price: number;
   price_type: 'offer' | 'discounted' | 'regular';
   price_max: number | null;

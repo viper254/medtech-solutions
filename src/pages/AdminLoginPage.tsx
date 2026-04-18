@@ -57,7 +57,10 @@ export default function AdminLoginPage() {
       setAttempts(0);
       setLockedUntil(null);
       // Auto-promote to super admin if no admins exist yet (first-time setup)
-      await supabase.rpc('bootstrap_super_admin', { user_email: email.trim().toLowerCase() });
+      const { error: rpcError } = await supabase.rpc('bootstrap_super_admin', { user_email: email.trim().toLowerCase() });
+      if (rpcError) {
+        console.error('Failed to bootstrap super admin:', rpcError);
+      }
       navigate('/admin');
     }
   }

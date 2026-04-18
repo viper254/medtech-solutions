@@ -6,10 +6,12 @@ import type { CartState, CartAction } from './store/cartReducer';
 import { cartReducer, loadCartFromStorage, saveCartToStorage } from './store/cartReducer';
 import { CustomerAuthContext } from './store/customerAuth';
 import { supabase } from './lib/supabaseClient';
+import { useSiteStatus } from './hooks/useSiteStatus';
 
 import Navbar from './components/Navbar';
 import WhatsAppFAB from './components/WhatsAppFAB';
 import ProtectedRoute from './components/ProtectedRoute';
+import LoadingSpinner from './components/LoadingSpinner';
 
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
@@ -29,6 +31,8 @@ import AdminReviewsPage from './pages/AdminReviewsPage';
 import OrderTrackingPage from './pages/OrderTrackingPage';
 import CustomerAuthPage from './pages/CustomerAuthPage';
 import AccountPage from './pages/AccountPage';
+import DevControlPanel from './pages/DevControlPanel';
+import SiteDisabledPage from './pages/SiteDisabledPage';
 
 // ── Cart Context ───────────────────────────────────────────────────────────────
 
@@ -49,29 +53,58 @@ export function useCart(): CartContextValue {
 
 export default function App() {
   const [cart, dispatch] = useReducer(cartReducer, undefined, loadCartFromStorage);
+  
+  // Site status check
+  const { status: siteStatus, loading: siteLoading } = useSiteStatus();
 
   // Customer auth state
   const [customerUser, setCustomerUser] = useState<User | null>(null);
   const [customerProfile, setCustomerProfile] = useState<CustomerProfile | null>(null);
   const [customerLoading, setCustomerLoading] = useState(true);
+  
+  // Check if current user is admin
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       const u = session?.user ?? null;
       setCustomerUser(u);
-      if (u) loadCustomerProfile(u.id);
-      else setCustomerLoading(false);
+      if (u) {
+        loadCustomerProfile(u.id);
+        await checkIfAdmin(u.id);
+      } else {
+        setCustomerLoading(false);
+      }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const u = session?.user ?? null;
       setCustomerUser(u);
-      if (u) loadCustomerProfile(u.id);
-      else { setCustomerProfile(null); setCustomerLoading(false); }
+      if (u) {
+        loadCustomerProfile(u.id);
+        await checkIfAdmin(u.id);
+      } else { 
+        setCustomerProfile(null); 
+        setCustomerLoading(false);
+        setIsAdmin(false);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+  
+  async function checkIfAdmin(userId: string) {
+    try {
+      const { data } = await supabase
+        .from('admins')
+        .select('user_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+      setIsAdmin(!!data);
+    } catch {
+      setIsAdmin(false);
+    }
+  }
 
   function loadCustomerProfile(userId: string) {
     Promise.resolve(
@@ -113,6 +146,7 @@ export default function App() {
       payload: {
         product_id: product.id,
         name: product.name,
+        category: product.category,
         effective_price: effectivePrice,
         price_type: offerActive ? 'offer' : product.discounted_price != null ? 'discounted' : 'regular',
         price_max: (!offerActive && product.discounted_price == null) ? (product.price_max ?? null) : null,
@@ -123,6 +157,34 @@ export default function App() {
   }
 
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  
+  // Show loading while checking site status
+  if (siteLoading) {
+    return <LoadingSpinner />;
+  }
+  
+  // If site is disabled, show appropriate page
+  if (siteStatus && !siteStatus.is_active) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          {/* Allow dev control panel access even when site is disabled */}
+          <Route path="/dev/control" element={<DevControlPanel />} />
+          
+          {/* Show disabled page for all other routes */}
+          <Route 
+            path="*" 
+            element={
+              <SiteDisabledPage 
+                message={isAdmin ? siteStatus.admin_message : siteStatus.customer_message}
+                isAdmin={isAdmin}
+              />
+            } 
+          />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
 
   return (
     <CustomerAuthContext.Provider value={{
@@ -137,6 +199,9 @@ export default function App() {
         <Navbar cartItemCount={cartItemCount} />
 
         <Routes>
+          {/* Developer control panel - secret route */}
+          <Route path="/dev/control" element={<DevControlPanel />} />
+          
           {/* Public routes */}
           <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
           <Route path="/catalog" element={<CatalogPage onAddToCart={handleAddToCart} />} />

@@ -221,26 +221,37 @@ export default function AdminProductFormPage() {
       // Upload new media files and insert product_media rows
       if (newFiles.length > 0) {
         const nextSortOrder = existingMedia.length;
+        const uploadedPaths: string[] = [];
 
-        for (let i = 0; i < newFiles.length; i++) {
-          const { file, type } = newFiles[i];
-          const ext = file.name.split('.').pop() ?? 'bin';
-          const storagePath = `${productId}/${Date.now()}-${i}.${ext}`;
+        try {
+          for (let i = 0; i < newFiles.length; i++) {
+            const { file, type } = newFiles[i];
+            const ext = file.name.split('.').pop() ?? 'bin';
+            const storagePath = `${productId}/${Date.now()}-${i}.${ext}`;
 
-          const { error: uploadError } = await supabase.storage
-            .from('product-media')
-            .upload(storagePath, file, { upsert: false });
+            const { error: uploadError } = await supabase.storage
+              .from('product-media')
+              .upload(storagePath, file, { upsert: false });
 
-          if (uploadError) throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
+            if (uploadError) throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`);
+            
+            uploadedPaths.push(storagePath);
 
-          const { error: mediaInsertError } = await supabase.from('product_media').insert({
-            product_id: productId,
-            storage_path: storagePath,
-            type,
-            sort_order: nextSortOrder + i,
-          });
+            const { error: mediaInsertError } = await supabase.from('product_media').insert({
+              product_id: productId,
+              storage_path: storagePath,
+              type,
+              sort_order: nextSortOrder + i,
+            });
 
-          if (mediaInsertError) throw new Error(mediaInsertError.message);
+            if (mediaInsertError) throw new Error(mediaInsertError.message);
+          }
+        } catch (uploadErr) {
+          // Rollback: delete uploaded files if DB insert fails
+          if (uploadedPaths.length > 0) {
+            await supabase.storage.from('product-media').remove(uploadedPaths);
+          }
+          throw uploadErr;
         }
       }
 

@@ -14,12 +14,12 @@ const ProtectedRoute = () => {
         return;
       }
       // Check user is actually in the admins table
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('admins')
         .select('user_id')
         .eq('user_id', session.user.id)
-        .single();
-      setAuthorized(!!data);
+        .maybeSingle();
+      setAuthorized(!!data && !error);
       setLoading(false);
     });
   }, []);

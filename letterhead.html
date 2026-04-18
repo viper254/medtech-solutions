@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medtech Solutions - Official Letterhead</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            padding: 20px;
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            box-shadow: 0 8px 32px rgba(15, 31, 61, 0.14);
+            position: relative;
+        }
+        
+        /* Header Section */
+        .header {
+            background: linear-gradient(135deg, #0a1628 0%, #0f1f3d 40%, #1d6fa4 100%);
+            padding: 45px 50px 35px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 450px;
+            height: 450px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 50%;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -8%;
+            width: 350px;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 30px;
+        }
+        
+        .logo-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-img {
+            width: 65px;
+            height: 65px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo-text-wrapper {
+            flex: 1;
+        }
+        
+        .company-name {
+            font-size: 34px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.8px;
+            margin-bottom: 6px;
+            line-height: 1.1;
+        }
+        
+        .tagline {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+        
+        .slogan {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+            font-style: italic;
+            margin-top: 3px;
+        }
+        
+        .header-contact {
+            text-align: right;
+            color: white;
+            font-size: 10.5px;
+            line-height: 1.9;
+            min-width: 220px;
+        }
+        
+        .header-contact div {
+            margin-bottom: 3px;
+        }
+        
+        .header-contact strong {
+            font-weight: 600;
+            margin-right: 6px;
+            opacity: 0.8;
+        }
+        
+        /* Accent Bar */
+        .accent-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #1d6fa4 0%, #25d366 100%);
+        }
+        
+        /* Content Section */
+        .content {
+            padding: 50px 50px 120px;
+            min-height: 600px;
+        }
+        
+        .date-ref {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 35px;
+            font-size: 11.5px;
+            color: #5a6a80;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e8f2fa;
+        }
+        
+        .date-ref strong {
+            color: #0f1f3d;
+            font-weight: 600;
+        }
+        
+        .letter-body {
+            font-size: 13px;
+            line-height: 1.85;
+            color: #0f1f3d;
+        }
+        
+        .letter-body h2 {
+            font-size: 17px;
+            color: #0f1f3d;
+            margin-bottom: 25px;
+            font-weight: 700;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8f2fa;
+        }
+        
+        .letter-body p {
+            margin-bottom: 16px;
+        }
+        
+        .letter-body strong {
+            color: #0f1f3d;
+            font-weight: 600;
+        }
+        
+        /* Footer Section */
+        .footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, #f7fafc 0%, #e8f2fa 100%);
+            border-top: 2px solid #1d6fa4;
+            padding: 20px 50px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            font-size: 9.5px;
+            color: #5a6a80;
+        }
+        
+        .footer-section {
+            line-height: 1.7;
+        }
+        
+        .footer-section strong {
+            color: #0f1f3d;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .footer-center {
+            text-align: center;
+        }
+        
+        .footer-right {
+            text-align: right;
+        }
+        
+        .footer-divider {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #dde3ec;
+            text-align: center;
+            font-size: 8.5px;
+            color: #718096;
+            font-style: italic;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .page {
+                width: 100%;
+                margin: 0;
+                box-shadow: none;
+            }
+            
+            @page {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="logo.jpeg" alt="Medtech Solutions Logo" class="logo-img">
+                    <div class="logo-text-wrapper">
+                        <div class="company-name">MEDTECH SOLUTIONS</div>
+                        <div class="tagline">Tech Accessories & Medical Equipment</div>
+                        <div class="slogan">Home of Quality, Reliable & Affordable Solutions</div>
+                    </div>
+                </div>
+                <div class="header-contact">
+                    <div><strong>Phone:</strong> +254 793 636 022</div>
+                    <div><strong>Phone:</strong> +254 756 597 813</div>
+                    <div><strong>Email:</strong> medtechsolutions@gmail.com</div>
+                    <div><strong>WhatsApp:</strong> +254 793 636 022</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Accent Bar -->
+        <div class="accent-bar"></div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="date-ref">
+                <div><strong>Date:</strong> April 17, 2026</div>
+                <div><strong>Ref:</strong> MTS/2026/XXX</div>
+            </div>
+            
+            <div class="letter-body">
+                <h2>Subject: [Your Subject Here]</h2>
+                
+                <p>Dear [Recipient Name],</p>
+                
+                <p>
+                    [Your letter content goes here. This is a premium letterhead template for Medtech Solutions, 
+                    designed for official correspondence, quotations, invoices, and business communications.]
+                </p>
+                
+                <p>
+                    [Add additional paragraphs as needed. The design maintains a professional appearance 
+                    while incorporating modern styling elements that reflect your brand identity.]
+                </p>
+                
+                <p>
+                    Should you have any questions or require further information, please do not hesitate 
+                    to contact us using the details provided above.
+                </p>
+                
+                <p style="margin-top: 45px;">
+                    Yours sincerely,<br><br><br><br>
+                    _______________________<br>
+                    <strong>[Name]</strong><br>
+                    [Position]<br>
+                    Medtech Solutions
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-content">
+                <div class="footer-section footer-left">
+                    <strong>Kisii Branch</strong>
+                    Market Plaza, Kisii Town<br>
+                    +254 793 636 022<br>
+                    +254 756 597 813
+                </div>
+                <div class="footer-section footer-center">
+                    <strong>Business Hours</strong>
+                    Mon - Fri: 09:00 - 18:00<br>
+                    Saturday: 09:00 - 15:00<br>
+                    Sunday: Closed
+                </div>
+                <div class="footer-section footer-right">
+                    <strong>Nairobi Branch</strong>
+                    Platinum Plaza, Nairobi<br>
+                    +254 793 636 022<br>
+                    +254 756 597 813
+                </div>
+            </div>
+            <div class="footer-divider">
+                Countrywide Delivery Available • Payment on Delivery Accepted • Expert Repairs
+            </div>
+        </div>
+    </div>
+</body>
+</html>

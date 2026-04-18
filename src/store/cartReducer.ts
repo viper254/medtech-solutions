@@ -18,7 +18,14 @@ export function loadCartFromStorage(): CartState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     return JSON.parse(raw) as CartState;
-  } catch {
+  } catch (error) {
+    console.error('Failed to load cart from storage:', error);
+    // Clear corrupted data
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Ignore if we can't clear
+    }
     return [];
   }
 }

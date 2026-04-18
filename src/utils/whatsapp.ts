@@ -152,7 +152,7 @@ export async function buildCartCheckoutUrl(items: CartItem[]): Promise<string> {
   await saveOrder(ref, items.map((item) => ({
     product_id: item.product_id,
     product_name: item.name,
-    product_category: '',
+    product_category: item.category ?? '',
     unit_price: item.effective_price,
     quantity: item.quantity,
     price_type: item.price_type,

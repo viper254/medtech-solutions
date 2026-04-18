@@ -70,9 +70,14 @@ export default function AccountPage() {
       .from('customer_profiles')
       .upsert({ user_id: user.id, full_name: fullName.trim(), phone: phone.trim() });
 
-    setSaving(false);
-    if (error) { setSaveMsg('Failed to save. Please try again.'); return; }
+    if (error) { 
+      setSaving(false);
+      setSaveMsg('Failed to save. Please try again.'); 
+      return; 
+    }
+    
     await refreshProfile();
+    setSaving(false);
     setSaveMsg('Profile updated.');
   }
 

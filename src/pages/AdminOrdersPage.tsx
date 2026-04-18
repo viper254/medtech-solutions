@@ -54,6 +54,13 @@ export default function AdminOrdersPage() {
   }
 
   async function updateStatus(orderId: string, status: OrderStatus) {
+    // Validate status is a valid enum value
+    const validStatuses: OrderStatus[] = ['pending', 'confirmed', 'dispatched', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      setToast({ type: 'error', message: 'Invalid status value.' });
+      return;
+    }
+
     const { error } = await supabase
       .from('orders')
       .update({ status })
@@ -68,6 +75,13 @@ export default function AdminOrdersPage() {
   }
 
   async function updatePaymentStatus(orderId: string, payment_status: Order['payment_status']) {
+    // Validate payment status is a valid enum value
+    const validPaymentStatuses: Order['payment_status'][] = ['unpaid', 'partial', 'paid', 'refunded'];
+    if (!validPaymentStatuses.includes(payment_status)) {
+      setToast({ type: 'error', message: 'Invalid payment status value.' });
+      return;
+    }
+
     const updates: Partial<Order> = { payment_status };
     if (payment_status === 'paid') updates.paid_at = new Date().toISOString();
 
