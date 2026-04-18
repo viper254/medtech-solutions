@@ -24,7 +24,14 @@ export function useSiteStatus() {
 
   async function checkStatus() {
     try {
-      const { data, error } = await supabase.rpc('get_site_status');
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Status check timeout')), 5000)
+      );
+      
+      const statusPromise = supabase.rpc('get_site_status');
+      
+      const { data, error } = await Promise.race([statusPromise, timeoutPromise]) as any;
       
       if (error) {
         console.error('Failed to check site status:', error);
@@ -38,6 +45,15 @@ export function useSiteStatus() {
         });
       } else if (data && data.length > 0) {
         setStatus(data[0] as SiteStatus);
+      } else {
+        // No data returned, assume active
+        setStatus({
+          is_active: true,
+          customer_message: '',
+          admin_message: '',
+          days_until_due: 999,
+          is_overdue: false,
+        });
       }
     } catch (error) {
       console.error('Site status check error:', error);
