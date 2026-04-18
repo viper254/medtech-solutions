@@ -3,8 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import LoadingSpinner from '../components/LoadingSpinner';
 
-// SECURITY: Change this secret key to something unique and keep it private
-const SECRET_KEY = 'dev_control_2024_secure_key_change_this';
+// SECURITY: Secret key from environment variable (or fallback)
+// Set VITE_DEV_CONTROL_KEY in your .env file
+const SECRET_KEY = import.meta.env.VITE_DEV_CONTROL_KEY || 'phantom@2025';
 
 interface SiteStatus {
   is_active: boolean;
@@ -227,6 +228,10 @@ export default function DevControlPanel() {
     return (
       <div style={styles.page}>
         <div style={styles.accessDenied}>
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#f85149" strokeWidth="2" style={{ marginBottom: '1rem' }}>
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+          </svg>
           <h1 style={styles.deniedHeading}>Access Denied</h1>
           <p style={styles.deniedText}>Invalid access key</p>
           <button onClick={() => navigate('/')} style={styles.homeBtn}>Go Home</button>
@@ -240,10 +245,20 @@ export default function DevControlPanel() {
       <div style={styles.container}>
         <div style={styles.header}>
           <div>
-            <h1 style={styles.heading}>🔧 Developer Control Panel</h1>
+            <h1 style={styles.heading}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+              Developer Control Panel
+            </h1>
             <p style={styles.sub}>Site Management & Payment Tracking</p>
           </div>
-          <button onClick={() => navigate('/')} style={styles.homeBtn}>← Back to Site</button>
+          <button onClick={() => navigate('/')} style={styles.homeBtn}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.25rem' }}>
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Site
+          </button>
         </div>
 
         {message && (
@@ -259,12 +274,52 @@ export default function DevControlPanel() {
             <div style={styles.statusGrid}>
               <div>
                 <span style={styles.statusLabel}>Site Status:</span>
-                <span style={styles.statusValue}>{status.is_active ? '✅ ACTIVE' : '🔴 DISABLED'}</span>
+                <span style={styles.statusValue}>
+                  {status.is_active ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3fb950" strokeWidth="3" style={{ verticalAlign: 'middle', marginRight: '0.25rem' }}>
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      ACTIVE
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#f85149" style={{ verticalAlign: 'middle', marginRight: '0.25rem' }}>
+                        <circle cx="12" cy="12" r="10"/>
+                      </svg>
+                      DISABLED
+                    </>
+                  )}
+                </span>
               </div>
               <div>
                 <span style={styles.statusLabel}>Payment Status:</span>
                 <span style={styles.statusValue}>
-                  {status.is_overdue ? '⚠️ OVERDUE' : status.days_until_due < 7 ? '⏰ DUE SOON' : '✓ Current'}
+                  {status.is_overdue ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f85149" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.25rem' }}>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      OVERDUE
+                    </>
+                  ) : status.days_until_due < 7 ? (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d29922" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.25rem' }}>
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                      DUE SOON
+                    </>
+                  ) : (
+                    <>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3fb950" strokeWidth="3" style={{ verticalAlign: 'middle', marginRight: '0.25rem' }}>
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      Current
+                    </>
+                  )}
                 </span>
               </div>
               <div>
@@ -273,14 +328,34 @@ export default function DevControlPanel() {
               </div>
             </div>
             <button onClick={handleQuickToggle} disabled={saving} style={styles.quickToggle}>
-              {saving ? 'Processing...' : isActive ? '🔴 Disable Site Now' : '✅ Enable Site Now'}
+              {saving ? 'Processing...' : isActive ? (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
+                    <circle cx="12" cy="12" r="10"/>
+                  </svg>
+                  Disable Site Now
+                </>
+              ) : (
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Enable Site Now
+                </>
+              )}
             </button>
           </div>
         )}
 
         {/* Record Payment */}
         <div style={styles.card}>
-          <h2 style={styles.cardHeading}>💰 Record Payment</h2>
+          <h2 style={styles.cardHeading}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Record Payment
+          </h2>
           <div style={styles.paymentForm}>
             <div style={styles.field}>
               <label style={styles.label}>Payment Amount (KES)</label>
@@ -312,7 +387,13 @@ export default function DevControlPanel() {
 
         {/* Site Control Settings */}
         <div style={styles.card}>
-          <h2 style={styles.cardHeading}>⚙️ Site Control Settings</h2>
+          <h2 style={styles.cardHeading}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 1v6m0 6v6m5.2-13.2l-4.2 4.2m0 6l4.2 4.2M23 12h-6m-6 0H1m18.2 5.2l-4.2-4.2m-6 0l-4.2 4.2"/>
+            </svg>
+            Site Control Settings
+          </h2>
           
           <div style={styles.formGrid}>
             <div style={styles.field}>
@@ -400,7 +481,14 @@ export default function DevControlPanel() {
 
         {/* Payment History */}
         <div style={styles.card}>
-          <h2 style={styles.cardHeading}>📊 Payment History</h2>
+          <h2 style={styles.cardHeading}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
+              <line x1="12" y1="20" x2="12" y2="10"/>
+              <line x1="18" y1="20" x2="18" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="16"/>
+            </svg>
+            Payment History
+          </h2>
           {payments.length === 0 ? (
             <p style={styles.emptyText}>No payment records yet</p>
           ) : (
@@ -425,7 +513,14 @@ export default function DevControlPanel() {
 
         {/* Instructions */}
         <div style={styles.infoCard}>
-          <h3 style={styles.infoHeading}>ℹ️ How It Works</h3>
+          <h3 style={styles.infoHeading}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            How It Works
+          </h3>
           <ul style={styles.infoList}>
             <li>Record payments to automatically extend the site for 30 days</li>
             <li>Site will auto-disable after payment due date + grace period</li>

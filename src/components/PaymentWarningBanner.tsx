@@ -40,7 +40,21 @@ export default function PaymentWarningBanner() {
   return (
     <div style={{ ...styles.banner, ...(isUrgent ? styles.bannerUrgent : styles.bannerWarning) }}>
       <div style={styles.content}>
-        <span style={styles.icon}>{isUrgent ? '🚨' : '⚠️'}</span>
+        <span style={styles.icon}>
+          {isUrgent ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          )}
+        </span>
         <div style={styles.text}>
           <strong style={styles.title}>
             {status.is_overdue ? 'Payment Overdue' : `Payment Due in ${status.days_until_due} Day${status.days_until_due !== 1 ? 's' : ''}`}
@@ -52,7 +66,10 @@ export default function PaymentWarningBanner() {
           </p>
         </div>
         <button onClick={() => setDismissed(true)} style={styles.closeBtn} aria-label="Dismiss">
-          ✕
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
         </button>
       </div>
     </div>
@@ -83,7 +100,8 @@ const styles: Record<string, React.CSSProperties> = {
     gap: '1rem',
   },
   icon: {
-    fontSize: '1.5rem',
+    display: 'flex',
+    alignItems: 'center',
     flexShrink: 0,
   },
   text: {
@@ -105,11 +123,12 @@ const styles: Record<string, React.CSSProperties> = {
   closeBtn: {
     background: 'none',
     border: 'none',
-    fontSize: '1.25rem',
     color: '#718096',
     cursor: 'pointer',
     padding: '0.25rem',
     lineHeight: 1,
     flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
   },
 };
