@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase, mapProducts } from '../lib/supabaseClient';
 import LoadingSpinner from '../components/LoadingSpinner';
-import PaymentWarningBanner from '../components/PaymentWarningBanner';
 import type { Product } from '../types';
 
 type Toast = { type: 'success' | 'error'; message: string };
@@ -82,7 +81,6 @@ export default function AdminDashboardPage() {
 
   return (
     <main style={styles.page}>
-      <PaymentWarningBanner />
       <div style={styles.container}>
         {/* Header */}
         <div style={styles.header}>
