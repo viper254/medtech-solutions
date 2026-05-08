@@ -96,6 +96,14 @@ function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
+  const [copied, setCopied] = useState(false);
+
+  // Reset "Copied!" state after 2 seconds
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
 
   // Must be called unconditionally — hooks cannot be after early returns
   const { active: offerActive, countdown } = useOfferState(
@@ -227,19 +235,23 @@ function ProductDetail({ onAddToCart }: ProductDetailPageProps) {
               Add to Cart
             </button>
             <button
-              style={styles.shareBtn}
+              style={{
+                ...styles.shareBtn,
+                ...(copied ? { backgroundColor: 'var(--color-success)', color: '#fff', borderColor: 'var(--color-success)' } : {}),
+              }}
+              className="btn-transition"
               onClick={() => {
                 const url = window.location.href;
                 if (navigator.share) {
                   navigator.share({ title: product.name, url });
                 } else {
                   navigator.clipboard.writeText(url);
-                  alert('Link copied to clipboard');
+                  setCopied(true);
                 }
               }}
-              aria-label="Share this product"
+              aria-label={copied ? 'Link copied' : 'Share this product'}
             >
-              Share
+              {copied ? 'Copied!' : 'Share'}
             </button>
           </div>
 
