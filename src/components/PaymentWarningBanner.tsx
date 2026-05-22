@@ -1,0 +1,133 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
+
+interface SiteStatus {
+  is_active: boolean;
+  customer_message: string;
+  admin_message: string;
+  days_until_due: number;
+  is_overdue: boolean;
+}
+
+export default function PaymentWarningBanner() {
+  const [status, setStatus] = useState<SiteStatus | null>(null);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    checkStatus();
+  }, []);
+
+  async function checkStatus() {
+    try {
+      const { data } = await supabase.rpc('get_site_status');
+      if (data && data.length > 0) {
+        setStatus(data[0] as SiteStatus);
+      }
+    } catch (error) {
+      console.error('Failed to check payment status:', error);
+    }
+  }
+
+  if (!status || dismissed) return null;
+
+  const showWarning = status.days_until_due <= 7 || status.is_overdue;
+
+  if (!showWarning) return null;
+
+  const isUrgent = status.days_until_due <= 3 || status.is_overdue;
+
+  return (
+    <div style={{ ...styles.banner, ...(isUrgent ? styles.bannerUrgent : styles.bannerWarning) }}>
+      <div style={styles.content}>
+        <span style={styles.icon}>
+          {isUrgent ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          )}
+        </span>
+        <div style={styles.text}>
+          <strong style={styles.title}>
+            {status.is_overdue ? 'Payment Overdue' : `Payment Due in ${status.days_until_due} Day${status.days_until_due !== 1 ? 's' : ''}`}
+          </strong>
+          <p style={styles.message}>
+            {status.is_overdue 
+              ? 'Your site access may be suspended soon. Please contact your developer immediately.'
+              : 'Please ensure payment is made before the due date to avoid service interruption.'}
+          </p>
+        </div>
+        <button onClick={() => setDismissed(true)} style={styles.closeBtn} aria-label="Dismiss">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const styles: Record<string, React.CSSProperties> = {
+  banner: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 1000,
+    padding: '1rem 1.5rem',
+    borderBottom: '2px solid',
+  },
+  bannerWarning: {
+    backgroundColor: '#fff5eb',
+    borderBottomColor: '#fbd38d',
+  },
+  bannerUrgent: {
+    backgroundColor: '#fff5f5',
+    borderBottomColor: '#feb2b2',
+  },
+  content: {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+  },
+  icon: {
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  text: {
+    flex: 1,
+  },
+  title: {
+    display: 'block',
+    fontSize: '0.95rem',
+    fontWeight: 700,
+    color: '#0f1f3d',
+    marginBottom: '0.25rem',
+  },
+  message: {
+    fontSize: '0.85rem',
+    color: '#4a5568',
+    margin: 0,
+    lineHeight: 1.4,
+  },
+  closeBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#718096',
+    cursor: 'pointer',
+    padding: '0.25rem',
+    lineHeight: 1,
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+  },
+};

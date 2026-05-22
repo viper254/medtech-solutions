@@ -157,3 +157,9 @@ img { max-width: 100%; height: auto; display: block; }
     padding: 3rem 1rem !important;
   }
 }
+
+/* ── Spinner animation for DevControlPanel ──────────────────────────────────── */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
