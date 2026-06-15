@@ -148,7 +148,6 @@ export default function App() {
         <Routes>
           {/* Developer control panel - secret route */}
           <Route path="/dev/control" element={<DevControlPanel />} />
-          <Route path="/dev/diagnostic" element={<DiagnosticPage />} />
           
           {/* Public routes */}
           <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
