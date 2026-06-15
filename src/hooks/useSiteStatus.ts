@@ -10,14 +10,8 @@ interface SiteStatus {
 }
 
 export function useSiteStatus() {
-  const [status, setStatus] = useState<SiteStatus>({
-    is_active: true,
-    customer_message: '',
-    admin_message: '',
-    days_until_due: 999,
-    is_overdue: false,
-  });
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<SiteStatus | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     checkStatus();
@@ -33,15 +27,22 @@ export function useSiteStatus() {
       const { data, error } = await supabase.rpc('get_site_status');
       
       if (error) {
-        console.warn('Site status check failed (using defaults):', error.message);
+        console.warn('Site status check failed (site will remain active):', error.message);
+        // Set to null so site stays active by default
+        setStatus(null);
         return;
       }
       
       if (data && data.length > 0) {
         setStatus(data[0] as SiteStatus);
+      } else {
+        // No data means site stays active
+        setStatus(null);
       }
     } catch (error) {
-      console.warn('Site status check error (using defaults):', error);
+      console.warn('Site status check error (site will remain active):', error);
+      // On any error, site stays active
+      setStatus(null);
     } finally {
       setLoading(false);
     }
